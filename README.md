@@ -27,13 +27,4 @@ docs/
 
 ---
 
-## 관련 저장소
-
-| 저장소 | 설명 |
-|--------|------|
-| [compass](https://github.com/fntimes/compass) | 메인 서비스 (대시보드, 분석 기능) |
-| [compass-engine](https://github.com/fntimes/compass-engine) | 데이터 추출, 정제, 모니터링 |
-
----
-
 **최종 수정일**: 2025-11-27
