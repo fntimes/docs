@@ -42,7 +42,7 @@ flowchart TB
         c3[비교 분석 기능]
         c4[마이그레이션 관리]
     end
-    subgraph extractor[compass-data-extractor]
+    subgraph extractor[compass-engine]
         direction TB
         e1[DART API 연동]
         e2[공시문서 파싱]
@@ -581,7 +581,7 @@ RankingDefinition.create!(
 # ✅ compass 프로젝트에서만 마이그레이션 생성
 rails g migration AddNewColumnToCompanies
 
-# ❌ compass-data-extractor에서 마이그레이션 생성 금지
+# ❌ compass-engine에서 마이그레이션 생성 금지
 # 두 프로젝트가 같은 DB를 공유하므로 충돌 발생
 ```
 
