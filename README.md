@@ -1,6 +1,6 @@
 # Compass 기술 문서
 
-Compass 서비스 개발에 필요한 기술 문서 모음.
+Compass 시스템 기술 문서 모음.
 
 ---
 
@@ -10,8 +10,8 @@ Compass 서비스 개발에 필요한 기술 문서 모음.
 
 | 문서 | 설명 |
 |------|------|
-| [database-design.md](./compass/database-design.md) | 데이터베이스 설계 배경과 원칙 |
-| [database-schema.md](./compass/database-schema.md) | 테이블 스키마 및 구현 세부사항 |
+| [database-design.md](./compass/database-design.md) | 설계 철학, 핵심 과제와 접근 방식 |
+| [database-schema.md](./compass/database-schema.md) | 테이블 구조, 컬럼 명세, 쿼리 예시 |
 
 ---
 

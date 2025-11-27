@@ -1,7 +1,7 @@
 # Compass 데이터베이스 설계
 
-Compass 시스템의 데이터베이스 설계 배경과 원칙을 설명하는 문서.
-테이블 상세 명세는 [database-schema.md](./database-schema.md) 참고.
+Compass 시스템의 데이터베이스 설계 철학, 핵심 과제와 접근 방식을 설명하는 문서.
+테이블 구조와 컬럼 명세는 [database-schema.md](./database-schema.md) 참고.
 
 ---
 
