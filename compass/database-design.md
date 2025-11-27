@@ -1,7 +1,7 @@
 # Compass 데이터베이스 설계
 
 Compass 시스템의 데이터베이스 설계 배경과 원칙을 설명하는 문서.
-테이블 상세 명세는 [개발자용 스키마 문서](./database-schema.md) 참고.
+테이블 상세 명세는 [database-schema.md](./database-schema.md) 참고.
 
 ---
 
@@ -173,7 +173,7 @@ graph TD
 
 ## 관련 문서
 
-- **개발자용 상세 스키마**: [database-schema.md](./database-schema.md)
+- **상세 스키마**: [database-schema.md](./database-schema.md)
   - 테이블 구조, 컬럼 명세, Rails 모델 구조, 쿼리 예시 등
 
 ---

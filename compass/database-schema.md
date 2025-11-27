@@ -1,4 +1,4 @@
-# Compass 데이터베이스 스키마 (개발자용)
+# Compass 데이터베이스 스키마
 
 신규 개발자가 Compass 데이터베이스 구조와 구현 세부사항을 파악하기 위한 문서.
 설계 배경과 원칙은 [database-design.md](./database-design.md) 참고.
