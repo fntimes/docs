@@ -20,11 +20,9 @@ Compass 서비스 개발에 필요한 기술 문서 모음.
 ```
 docs/
 ├── README.md              # 이 파일 (인덱스)
-├── compass/               # Compass 메인 서비스
-│   ├── database-design.md
-│   └── database-schema.md
-└── compass-engine/        # 데이터 추출/정제/모니터링 서비스
-    └── (예정)
+└── compass/               # Compass 서비스
+    ├── database-design.md
+    └── database-schema.md
 ```
 
 ---
