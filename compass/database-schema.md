@@ -1,7 +1,7 @@
 # Compass 데이터베이스 스키마 (개발자용)
 
 신규 개발자가 Compass 데이터베이스 구조와 구현 세부사항을 파악하기 위한 문서.
-설계 배경과 원칙은 [database-structure.md](./database-structure.md) 참고.
+설계 배경과 원칙은 [database-design.md](./database-design.md) 참고.
 
 ---
 
@@ -95,7 +95,7 @@ erDiagram
 
 ## 2. 도메인 구조
 
-설계 원칙의 구체적 구현 방법. 원칙 자체는 [database-structure.md](./database-structure.md) 참고.
+설계 원칙의 구체적 구현 방법. 원칙 자체는 [database-design.md](./database-design.md) 참고.
 
 ### 2.1 Core Domain (기업 및 분류)
 

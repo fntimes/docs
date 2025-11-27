@@ -6,7 +6,7 @@
 
 | 문서 | 설명 | 대상 |
 |------|------|------|
-| [데이터베이스 설계](./compass/database-structure.md) | 설계 철학 및 핵심 개념 | 기획자, 분석가 |
+| [데이터베이스 설계](./compass/database-design.md) | 설계 철학 및 핵심 개념 | 기획자, 분석가 |
 | [데이터베이스 스키마](./compass/database-schema.md) | 테이블 구조, 모델, 쿼리 예시 | 개발자 |
 
 ---
