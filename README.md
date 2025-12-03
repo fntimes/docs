@@ -19,12 +19,6 @@ Compass 시스템 기술 문서 모음.
 | [database-design.md](./compass/database-design.md) | 설계 철학, 핵심 과제와 접근 방식 |
 | [database-schema.md](./compass/database-schema.md) | 테이블 구조, 컬럼 명세, 쿼리 예시 |
 
-### 데이터 수집
-
-| 문서 | 설명 |
-|------|------|
-| [data-extraction-process.md](./compass/data-extraction-process.md) | 데이터 수집 프로세스 |
-
 ---
 
 ## 문서 구조
@@ -35,8 +29,7 @@ docs/
 └── compass/               # Compass 서비스
     ├── project-timeline.md
     ├── database-design.md
-    ├── database-schema.md
-    └── data-extraction-process.md
+    └── database-schema.md
 ```
 
 ---
