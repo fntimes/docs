@@ -10,7 +10,7 @@ Compass 시스템 기술 문서 모음.
 
 | 문서 | 설명 |
 |------|------|
-| [project-timeline.md](./compass/project-timeline.md) | 12주 작업 일정표, 마일스톤 |
+| [project-timeline.md](./compass/project-timeline.md) | 작업 일정표, 단계별 목표 |
 
 ### 데이터베이스
 
