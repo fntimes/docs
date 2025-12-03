@@ -10,7 +10,7 @@ Compass 시스템 기술 문서 모음.
 
 | 문서 | 설명 |
 |------|------|
-| [project-timeline.md](./compass/project-timeline.md) | 작업 일정표, 단계별 목표 |
+| [development-roadmap.md](./compass/development-roadmap.md) | 개발 로드맵, 단계별 목표 |
 
 ### 데이터베이스
 
@@ -27,7 +27,7 @@ Compass 시스템 기술 문서 모음.
 docs/
 ├── README.md              # 이 파일 (인덱스)
 └── compass/               # Compass 서비스
-    ├── project-timeline.md
+    ├── development-roadmap.md
     ├── database-design.md
     └── database-schema.md
 ```
