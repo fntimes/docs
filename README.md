@@ -10,7 +10,8 @@ Compass 시스템 기술 문서 모음.
 
 | 문서 | 설명 |
 |------|------|
-| [development-roadmap.md](./compass/development-roadmap.md) | 개발 로드맵, 단계별 목표 |
+| [development-roadmap.md](./compass/development-roadmap.md) | 개발 로드맵 (마크다운) |
+| [development-roadmap.xlsx](./compass/development-roadmap.xlsx) | 개발 로드맵 (엑셀) |
 
 ### 데이터베이스
 
@@ -28,10 +29,11 @@ docs/
 ├── README.md              # 이 파일 (인덱스)
 └── compass/               # Compass 서비스
     ├── development-roadmap.md
+    ├── development-roadmap.xlsx
     ├── database-design.md
     └── database-schema.md
 ```
 
 ---
 
-**최종 수정일**: 2025-12-02
+**최종 수정일**: 2025-12-04
