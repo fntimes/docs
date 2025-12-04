@@ -4,6 +4,14 @@ Compass 시스템 기술 문서 모음.
 
 ---
 
+## 개발 로드맵
+
+![개발 로드맵](./compass/images/development-roadmap.png)
+
+> 상세 내용: [development-roadmap.md](./compass/development-roadmap.md) | 다운로드: [development-roadmap.xlsx](./compass/development-roadmap.xlsx)
+
+---
+
 ## 문서 목록
 
 ### 프로젝트 관리
@@ -31,7 +39,9 @@ docs/
     ├── development-roadmap.md
     ├── development-roadmap.xlsx
     ├── database-design.md
-    └── database-schema.md
+    ├── database-schema.md
+    └── images/
+        └── development-roadmap.png
 ```
 
 ---
