@@ -1,20 +1,19 @@
 # 데이터 추출 서비스 워크플로우
 
-**마지막 업데이트**: 2025-12-08
-**버전**: 1.0 (초기 작성)
+Compass Engine의 경영성과 데이터 추출 구조와 흐름을 설명하는 문서.
 
 ---
 
 ## 개요
 
-Compass Engine의 경영성과 데이터 추출은 **이중 구조**로 설계되어 있습니다:
+경영성과 데이터 추출은 **이중 구조**로 설계됨:
 
 | 구분 | 저장 방식 | 용도 | 데이터 출처 |
 |------|----------|------|------------|
 | **분기말 데이터** | DB 저장 (performance_values) | 분기별 비교, 랭킹, 필터링 | Factbook + 분기말 주가 |
 | **실시간 데이터** | 조회 시 계산 (저장 안함) | 대시보드 현재가 표시 | 최근 거래일 주가 + 저장된 EPS/BPS |
 
-### 왜 이중 구조인가?
+### 이중 구조의 필요성
 
 **대시보드 화면 예시**:
 ```
@@ -53,7 +52,7 @@ app/services/
 
 ### 1. Orchestrator (통합 추출기)
 
-Factbook 추출과 분기말 주가 조회를 통합 관리합니다.
+Factbook 추출과 분기말 주가 조회를 통합 관리.
 
 ```ruby
 # app/services/financial_institutions/holdings/orchestrator.rb
@@ -145,7 +144,7 @@ results = FinancialInstitutions::Holdings::Orchestrator.extract_all(
 
 ### 2. 분기말 주가 조회
 
-Orchestrator 내부에서 분기말 주가를 조회하고 시장가치 지표를 계산합니다.
+Orchestrator 내부에서 분기말 주가 조회 및 시장가치 지표 계산.
 
 ```ruby
 def fetch_quarter_end_stock_data(factbook_result)
@@ -189,7 +188,7 @@ end
 
 ### 3. ValueSaver (DB 저장)
 
-Orchestrator 결과를 performance_values 테이블에 저장합니다.
+Orchestrator 결과를 performance_values 테이블에 저장.
 
 ```ruby
 # app/services/financial_institutions/holdings/value_saver.rb
@@ -238,7 +237,7 @@ end
 
 ### RealtimeIndicatorService
 
-대시보드에서 현재 주가 기반 지표를 표시할 때 사용합니다.
+대시보드에서 현재 주가 기반 지표 표시 시 사용.
 
 ```ruby
 # app/services/stock/realtime_indicator_service.rb
@@ -377,7 +376,7 @@ Dashboard  ──▶  RealtimeIndicatorService  ──▶  Stock API (최근 종
 
 ### 단위 변환
 
-모든 금액 지표는 **원(₩) 단위**로 저장합니다.
+모든 금액 지표는 **원(₩) 단위**로 저장.
 
 ```ruby
 # Factbook (단위: 십억원)
@@ -423,18 +422,16 @@ puts "실시간 PER: #{rt_result[:per]}"
 
 ---
 
-## 관련 문서
+## 향후 개선 계획
 
-- [서비스 아키텍처 가이드](./base-classes-guide.md): 베이스 클래스 사용법
-- [에러 처리 가이드](./error-handling-guide.md): 커스텀 에러 계층
-- [금융지주 경영성과 지표](../indicators/financial-holdings-performance.md): 44개 지표 정의
-- [미추출 지표 현황](../indicators/unextracted-indicators.md): 추출 미완료 지표
+| 항목 | 설명 |
+|------|------|
+| TSR 계산 고도화 | YTD 배당 합계 정확히 계산 |
+| API 캐싱 | 동일 날짜 주가 조회 캐싱 |
+| 배치 처리 | 4대 금융지주 일괄 추출 자동화 |
+| 모니터링 | 주가 API 장애 시 알림 |
 
 ---
 
-## 향후 개선 계획
-
-1. **TSR 계산 고도화**: YTD 배당 합계 정확히 계산
-2. **API 캐싱**: 동일 날짜 주가 조회 캐싱
-3. **배치 처리**: 4대 금융지주 일괄 추출 자동화
-4. **모니터링**: 주가 API 장애 시 알림
+**작성일**: 2025-12-08
+**버전**: 1.1
