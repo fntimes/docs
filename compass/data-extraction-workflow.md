@@ -38,7 +38,7 @@ app/services/
 │   └── holdings/
 │       ├── orchestrator.rb         # 통합 추출 (Factbook + 분기말 주가)
 │       ├── factbook_extractor.rb   # Factbook 지표 추출
-│       └── value_saver.rb          # DB 저장
+│       └── persister.rb            # DB 영속화
 │
 └── stock/
     ├── fsc_client.rb               # 주가 API 클라이언트
@@ -191,13 +191,13 @@ end
 
 ---
 
-### 3. ValueSaver (DB 저장)
+### 3. Persister (DB 영속화)
 
-Orchestrator 결과를 performance_values 테이블에 저장.
+Orchestrator 결과를 performance_values 테이블에 영속화.
 
 ```ruby
-# app/services/financial_institutions/holdings/value_saver.rb
-class ValueSaver
+# app/services/financial_institutions/holdings/persister.rb
+class Persister
   STOCK_INDICATORS = %w[stock_price listed_shares market_cap].freeze
   MARKET_INDICATORS = %w[per pbr tsr dividend_yield].freeze
 
@@ -429,7 +429,7 @@ end
 ### 분기말 데이터 저장 (배치)
 
 ```
-Factbook Excel  ──▶  FactbookExtractor  ──▶  Orchestrator  ──▶  ValueSaver  ──▶  DB
+Factbook Excel  ──▶  FactbookExtractor  ──▶  Orchestrator  ──▶  Persister  ──▶  DB
                                                  │
 Stock API       ─────────────────────────────────┘
 (분기말 주가)
