@@ -42,8 +42,13 @@ app/services/
 │
 └── stock/
     ├── fsc_client.rb               # 주가 API 클라이언트
+    ├── daily_price_updater.rb      # 전일 종가 일괄 업데이트
     ├── market_value_calculator.rb  # PER/PBR/TSR 계산
     └── realtime_indicator_service.rb  # 실시간 지표 조회
+
+app/jobs/
+└── stock/
+    └── daily_price_update_job.rb   # 주가 업데이트 스케줄 Job
 ```
 
 ---
@@ -229,6 +234,84 @@ end
   calculated: true,
   metadata: { source_type: "calculated" }
 }
+```
+
+---
+
+## 전일 종가 업데이트
+
+### DailyPriceUpdater
+
+상장 종목의 전일 종가를 companies 테이블에 저장. PER/PBR 계산에 활용.
+
+```ruby
+# app/services/stock/daily_price_updater.rb
+class DailyPriceUpdater
+  def update_all(delay: 0.1)
+    Company.listed.where.not(stock_code: nil).each do |company|
+      update_company(company)
+      sleep(delay)
+    end
+  end
+
+  def update_company(company)
+    price_data = client.get_latest_stock_price(
+      company.stock_code,
+      base_date.strftime("%Y%m%d")
+    )
+
+    company.update!(
+      stock_price: price_data[:close_price],
+      stock_price_date: Date.parse(price_data[:date]),
+      listed_shares: price_data[:listed_shares]
+    )
+  end
+end
+```
+
+#### 사용 예시
+
+```ruby
+# 전체 상장 종목 업데이트
+updater = Stock::DailyPriceUpdater.new
+result = updater.update_all
+# => { updated: 4, failed: 0, skipped: 0, base_date: "2025-12-07" }
+
+# 특정 날짜 기준
+updater = Stock::DailyPriceUpdater.new(base_date: Date.new(2025, 12, 6))
+result = updater.update_all
+
+# 시가총액 조회
+Stock::DailyPriceUpdater.market_cap(company)
+# => 49_860_000_000_000 (원)
+```
+
+### 스케줄링 (Solid Queue)
+
+매일 18:00 장 마감 후 자동 실행.
+
+```yaml
+# config/recurring.yml
+production:
+  daily_stock_price_update:
+    class: Stock::DailyPriceUpdateJob
+    queue: default
+    schedule: at 6pm every day
+```
+
+```ruby
+# 수동 실행
+Stock::DailyPriceUpdateJob.perform_now
+Stock::DailyPriceUpdateJob.perform_later(base_date: "2025-12-06")
+```
+
+### 저장 위치
+
+```
+companies 테이블
+├── stock_price        # 전일 종가 (decimal 12,2)
+├── stock_price_date   # 기준일
+└── listed_shares      # 상장주식수
 ```
 
 ---
@@ -434,4 +517,4 @@ puts "실시간 PER: #{rt_result[:per]}"
 ---
 
 **작성일**: 2025-12-08
-**버전**: 1.1
+**버전**: 1.2 (전일 종가 업데이트 서비스 추가)
