@@ -27,6 +27,7 @@ FnBook 시스템 문서.
 
 | 문서 | 설명 |
 |------|------|
+| [service-overview.md](./fnbook/service-overview.md) | 서비스 개요 (메뉴 구성, 권한 체계) |
 | [user-guide.md](./fnbook/user-guide.md) | 사용자 가이드 (기능 안내 및 사용법) |
 
 ---
@@ -45,6 +46,7 @@ docs/
 │   └── images/
 │       └── development-roadmap.png
 └── fnbook/                # FnBook 서비스
+    ├── service-overview.md
     └── user-guide.md
 ```
 
