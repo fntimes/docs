@@ -12,8 +12,6 @@ Compass는 사내망 또는 VPN을 통해서만 접속 가능합니다. 외부�
 |---------|-------------|
 | Windows | [Outline-Client.exe](https://s3.amazonaws.com/outline-releases/client/windows/stable/Outline-Client.exe) |
 | macOS | [App Store](https://apps.apple.com/app/outline-app/id1356178125) |
-| iOS | [App Store](https://apps.apple.com/app/outline-app/id1356177741) |
-| Android | [Play Store](https://play.google.com/store/apps/details?id=org.outline.android.client) |
 
 ---
 
@@ -23,7 +21,7 @@ Compass는 사내망 또는 VPN을 통해서만 접속 가능합니다. 외부�
 
 Outline 클라이언트를 실행하면 아래와 같이 **VPN 액세스 키 추가** 화면이 나타납니다.
 
-![Step 1 - 액세스 키 입력 화면](images/vpn-step-1.png)
+<img src="images/vpn-step-1.png" width="300" alt="Step 1 - 액세스 키 입력 화면">
 
 - 관리자에게 전달받은 **액세스 키**를 입력창에 붙여넣습니다.
 - **확인** 버튼을 클릭합니다.
@@ -36,7 +34,7 @@ Outline 클라이언트를 실행하면 아래와 같이 **VPN 액세스 키 추
 
 액세스 키가 정상적으로 입력되면 아래와 같이 **Outline 서버**가 추가됩니다.
 
-![Step 2 - 서버 추가 완료](images/vpn-step-2.png)
+<img src="images/vpn-step-2.png" width="300" alt="Step 2 - 서버 추가 완료">
 
 - 화면에 "연결 해제됨" 상태로 표시됩니다.
 - 우측 하단의 **연결** 버튼을 클릭합니다.
@@ -47,20 +45,10 @@ Outline 클라이언트를 실행하면 아래와 같이 **VPN 액세스 키 추
 
 연결이 성공하면 아래와 같이 화면이 **녹색**으로 변경되고, "연결됨" 상태가 표시됩니다.
 
-![Step 3 - VPN 연결 완료](images/vpn-step-3.png)
+<img src="images/vpn-step-3.png" width="300" alt="Step 3 - VPN 연결 완료">
 
 - 하단에 **'Outline 서버'에 연결됨** 메시지가 표시됩니다.
 - 이제 Compass에 접속할 수 있습니다.
-
----
-
-## 3. Compass 접속
-
-VPN 연결 후 브라우저에서 아래 주소로 접속합니다.
-
-```
-https://compass.fnbook.info
-```
 
 ---
 
