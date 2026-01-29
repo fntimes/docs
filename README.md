@@ -12,7 +12,8 @@ Compass 시스템 기술 문서.
 
 | 문서 | 설명 |
 |------|------|
-| [getting-started.md](./compass/getting-started.md) | 시작 가이드 (접속 정보, VPN 설정, 앱 설치) |
+| [getting-started.md](./compass/getting-started.md) | 시작 가이드 (접속 정보, 로그인, 앱 설치) |
+| [vpn-setup.md](./compass/vpn-setup.md) | VPN 설정 가이드 (외부 접속 시) |
 | [development-roadmap.md](./compass/development-roadmap.md) | 개발 로드맵 |
 | [database-design.md](./compass/database-design.md) | 설계 철학, 핵심 과제와 접근 방식 |
 | [database-schema.md](./compass/database-schema.md) | 테이블 구조, 컬럼 명세, 쿼리 예시 |
@@ -40,6 +41,7 @@ docs/
 ├── README.md              # 이 파일 (인덱스)
 ├── compass/               # Compass 서비스
 │   ├── getting-started.md
+│   ├── vpn-setup.md
 │   ├── development-roadmap.md
 │   ├── development-roadmap.xlsx
 │   ├── database-design.md
