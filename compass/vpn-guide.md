@@ -52,7 +52,7 @@ Outline 클라이언트를 실행하면 아래와 같이 **VPN 액세스 키 추
 <img src="images/vpn-step-3.png" width="300" alt="Step 3 - VPN 연결 완료">
 
 - 하단에 **'Outline 서버'에 연결됨** 메시지가 표시됩니다.
-- 이제 Compass에 접속할 수 있습니다.
+- 연결이 완료되면 외부에서 Compass에 접속할 수 있습니다.
 
 ---
 
