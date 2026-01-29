@@ -12,7 +12,7 @@ Compass 시스템 기술 문서.
 
 | 문서 | 설명 |
 |------|------|
-| [vpn-guide.md](./compass/vpn-guide.md) | VPN 접속 가이드 (Outline 설치 및 연결) |
+| [getting-started.md](./compass/getting-started.md) | 시작 가이드 (접속 정보, VPN 설정, 앱 설치) |
 | [development-roadmap.md](./compass/development-roadmap.md) | 개발 로드맵 |
 | [database-design.md](./compass/database-design.md) | 설계 철학, 핵심 과제와 접근 방식 |
 | [database-schema.md](./compass/database-schema.md) | 테이블 구조, 컬럼 명세, 쿼리 예시 |
@@ -39,7 +39,7 @@ FnBook 시스템 문서.
 docs/
 ├── README.md              # 이 파일 (인덱스)
 ├── compass/               # Compass 서비스
-│   ├── vpn-guide.md
+│   ├── getting-started.md
 │   ├── development-roadmap.md
 │   ├── development-roadmap.xlsx
 │   ├── database-design.md
@@ -48,7 +48,8 @@ docs/
 │   └── images/
 │       ├── vpn-step-1.png
 │       ├── vpn-step-2.png
-│       └── vpn-step-3.png
+│       ├── vpn-step-3.png
+│       └── pwa-install.png
 └── fnbook/                # FnBook 서비스
     ├── service-overview.md
     └── user-guide.md
