@@ -2,7 +2,7 @@
 
 ## 사이트 주소
 
-https://staging.thecompass.biz
+<a href="https://staging.thecompass.biz" target="_blank">https://staging.thecompass.biz</a>
 
 > **안내**
 > 모바일/태블릿 화면은 현재 조정 중입니다. **2월 9일 정식 오픈**부터 지원됩니다.
