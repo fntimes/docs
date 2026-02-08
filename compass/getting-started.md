@@ -33,6 +33,8 @@
 
 <img src="images/pwa-install.png" width="200" alt="앱으로 설치 버튼">
 
+> **iPhone/iPad**: Safari에서 접속 → 하단 **공유** 버튼(↑) → **홈 화면에 추가**를 선택하세요.
+
 ---
 
 ## 사용자 매뉴얼
