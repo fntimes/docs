@@ -4,9 +4,6 @@
 
 <a href="https://thecompass.biz" target="_blank">https://thecompass.biz</a>
 
-> **안내**
-> 모바일/태블릿 화면은 현재 조정 중입니다. **2월 9일 정식 오픈**부터 지원됩니다.
-
 ---
 
 ## 로그인 정보
@@ -38,6 +35,14 @@
 
 ---
 
+## 사용자 매뉴얼
+
+지표 정의, 세부 기능 등 상세 가이드는 사이트 내 매뉴얼에서 확인할 수 있습니다.
+
+<a href="https://thecompass.biz/manual" target="_blank">매뉴얼 바로가기</a>
+
+---
+
 ## 피드백 및 문의
 
 사용 중 의견이나 개선 사항이 있으면 피드백을 남겨주세요. 사이트 상단 프로필 좌측의 **피드백** 버튼을 클릭하거나 아래 링크를 이용해 주세요.
@@ -47,11 +52,3 @@
 <a href="https://thecompass.biz/feedbacks" target="_blank">피드백 남기기</a>
 
 기타 문의는 AI미디어본부로 연락해 주세요.
-
----
-
-## 사용자 매뉴얼
-
-지표 정의, AI 분석 활용법 등 상세 가이드는 사이트 내 매뉴얼에서 확인할 수 있습니다.
-
-<a href="https://thecompass.biz/manual" target="_blank">매뉴얼 바로가기</a>
