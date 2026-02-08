@@ -14,6 +14,8 @@
 |---------|-------------|
 | Windows | [Outline-Client.exe](https://s3.amazonaws.com/outline-releases/client/windows/stable/Outline-Client.exe) |
 | macOS | [App Store](https://apps.apple.com/app/outline-app/id1356178125) |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=org.outline.android.client) |
+| iOS | [App Store](https://apps.apple.com/app/outline-app/id1356177741) |
 
 ---
 
