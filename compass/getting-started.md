@@ -2,7 +2,7 @@
 
 ## 사이트 주소
 
-<a href="https://staging.thecompass.biz" target="_blank">https://staging.thecompass.biz</a>
+<a href="https://thecompass.biz" target="_blank">https://thecompass.biz</a>
 
 > **안내**
 > 모바일/태블릿 화면은 현재 조정 중입니다. **2월 9일 정식 오픈**부터 지원됩니다.
@@ -30,21 +30,11 @@
 
 ---
 
-## 앱으로 설치 (선택)
+## 앱으로 설치
 
 사이트 접속 후 화면 하단의 **앱으로 설치** 버튼을 클릭하면 바탕화면에 바로가기가 생성됩니다.
 
-<img src="images/pwa-install.png" width="200" alt="앱으로 설치 버튼">
-
----
-
-## AI 분석 토큰
-
-테스트 기간 동안 사용자당 **100,000 토큰**이 부여됩니다.
-
-- 사이트 우측 상단 **프로필**을 클릭하면 토큰 사용량을 확인할 수 있습니다.
-- 한도 초과 시 AI 분석 기능 사용이 제한됩니다.
-- 한도 증가가 필요하면 AI미디어본부로 요청해 주세요.
+<img src="https://thecompass.biz/images/manual/pwa_install.png" width="200" alt="앱으로 설치 버튼">
 
 ---
 
@@ -54,6 +44,14 @@
 
 > 피드백은 모든 사용자가 확인할 수 있도록 공개되며, 작성자는 **익명**으로 표시됩니다.
 
-<a href="https://staging.thecompass.biz/feedbacks" target="_blank">피드백 남기기</a>
+<a href="https://thecompass.biz/feedbacks" target="_blank">피드백 남기기</a>
 
 기타 문의는 AI미디어본부로 연락해 주세요.
+
+---
+
+## 사용자 매뉴얼
+
+지표 정의, AI 분석 활용법 등 상세 가이드는 사이트 내 매뉴얼에서 확인할 수 있습니다.
+
+<a href="https://thecompass.biz/manual" target="_blank">매뉴얼 바로가기</a>
