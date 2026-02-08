@@ -34,7 +34,7 @@
 
 사이트 접속 후 화면 하단의 **앱으로 설치** 버튼을 클릭하면 바탕화면에 바로가기가 생성됩니다.
 
-<img src="https://thecompass.biz/images/manual/pwa_install.png" width="200" alt="앱으로 설치 버튼">
+<img src="images/pwa-install.png" width="200" alt="앱으로 설치 버튼">
 
 ---
 
