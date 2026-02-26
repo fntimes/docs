@@ -648,7 +648,7 @@ Performance::Value.where(company: company, indicator: net_income)
 kb = Company.find_by(name: 'KB금융지주')
 today = Date.current
 
-kb.child_relations
+kb.parent_relations
   .where(relation_type: 'subsidiary')
   .where('effective_from <= ?', today)
   .where('effective_to IS NULL OR effective_to >= ?', today)
@@ -657,7 +657,7 @@ kb.child_relations
 
 ```ruby
 # KB금융지주와 자회사들의 ROE 비교
-subsidiary_ids = kb.child_relations
+subsidiary_ids = kb.parent_relations
                    .where(relation_type: 'subsidiary')
                    .where('effective_to IS NULL')
                    .pluck(:child_company_id)
@@ -672,13 +672,13 @@ Performance::Value.where(company_id: [kb.id] + subsidiary_ids)
 
 ```ruby
 # 2024년 3분기 채권 발행 건 조회
-Dcm::BondIssue.in_period(2024, 3)
+Dcm::BondIssue.quarterly(2024, 3)
               .includes(bond_program: :company, underwritings: :company)
               .by_amount
 
 # 특정 증권사의 인수 실적
 Dcm::Underwriting.by_company(company_id)
-                 .in_period(2024, 3)
+                 .monthly(2024, 9)
                  .lead_roles
                  .includes(bond_issue: { bond_program: :company })
 ```
@@ -767,10 +767,6 @@ app/models/ecm/
 # app/lib/league_indicators/new_league.rb
 module LeagueIndicators
   module NewLeague
-    COMPANY_METADATA = {
-      # dart_code 기반 기업 정의
-    }.freeze
-
     INDICATORS = {
       # DB indicator 매핑
     }.freeze
@@ -781,8 +777,15 @@ module LeagueIndicators
   end
 end
 
-# 2. 서비스 생성
-# app/services/new_league_data_service.rb (BaseLeagueDataService 상속)
+# 2. 서비스 생성 (COMPANY_METADATA는 서비스에서 정의)
+# app/services/performance/new_league_data_service.rb
+class Performance::NewLeagueDataService < Performance::BaseLeagueDataService
+  include LeagueIndicators::NewLeague
+
+  COMPANY_METADATA = {
+    # dart_code 기반 기업 정의
+  }.freeze
+end
 
 # 3. 컨트롤러/뷰에서 서비스 호출
 ```
