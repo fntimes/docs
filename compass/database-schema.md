@@ -54,7 +54,25 @@ flowchart TB
 
 **핵심 규칙**:
 - 두 프로젝트가 동일한 데이터베이스 공유
-- 마이그레이션은 compass에서만 생성/관리 (extractor는 DB 참조만)
+- 마이그레이션은 compass에서만 생성/관리 (compass-engine은 DB 참조만)
+
+**테이블별 쓰기 소유권**:
+
+| 쓰기 주체 | 테이블 | 비고 |
+|-----------|--------|------|
+| compass-engine | companies | DART API로 기업 정보 수집 |
+| compass-engine | performance_values | 공시문서에서 지표 추출 |
+| compass-engine | retirement_pension_performances | FSS 데이터 수집 |
+| compass-engine | dcm_bond_programs, dcm_bond_issues, dcm_underwritings | DART 공시에서 채권 발행 정보 추출 |
+| compass-engine | ingestions | 자체 수집 이력 기록 |
+| compass | users, sessions | 인증 |
+| compass | articles | AI 기사 생성 |
+| compass | ai_token_allocations, ai_usage_logs | AI 사용 추적 |
+| compass | feedbacks, feedback_likes | 사용자 피드백 |
+| 양쪽 | sectors, company_sectors, company_relations | compass에서 시드, engine에서도 업데이트 가능 |
+| compass | performance_categories, performance_indicators | 시드/마이그레이션으로 관리 |
+
+> **주의**: compass-engine이 쓰는 테이블의 스키마를 변경할 때는 engine 코드도 함께 확인해야 한다.
 
 ### 1.2 ERD 개요
 
@@ -195,8 +213,23 @@ erDiagram
 | retirement_pension_performances | 사업자별 실적 | DB/DC/IRP 적립금·수익률 |
 
 **주요 컬럼**:
-- `product_type`: 상품 유형 (guaranteed, guaranteed_deposit, guaranteed_market, non_guaranteed)
-- `provider_type`: 사업자 유형 (은행, 증권, 보험 등)
+
+`product_type` — **integer enum** (시스템 내 유일한 정수형 enum):
+
+| 값 | 키 | 설명 | 비고 |
+|----|----|------|------|
+| 0 | guaranteed | 원리금보장 | 2025Q2 이전: 통합, 2025Q3~: deposit+market 합산 |
+| 1 | guaranteed_deposit | 예금성 원리금보장 | 2025Q3부터 신규 |
+| 2 | guaranteed_market | 시장성 원리금보장 | 2025Q3부터 신규 |
+| 3 | non_guaranteed | 원리금비보장 | |
+
+> **스키마 변경 이력**: 2025Q3부터 금융감독원이 원리금보장을 예금성/시장성으로 분리 공시. `guaranteed`(0)는 과거 데이터 및 합산 비교용으로 유지.
+
+`provider_type` — 사업자 유형: `bank`, `securities`, `life_insurance`, `general_insurance`
+
+기타 상수:
+- `PLAN_TYPES`: `db`, `dc`, `irp`
+- `RETURN_PERIODS`: `1y`, `3y`, `5y`, `7y`, `10y`
 - DB/DC/IRP별 적립금(`*_reserve`) 및 기간별 수익률(`*_return_1y` ~ `*_return_10y`)
 
 ### 2.5 Articles Domain (AI 기사)
@@ -210,10 +243,24 @@ erDiagram
 | articles | AI 기사 | 유형, 리그, 기간, 본문 등 |
 
 **주요 컬럼**:
-- `article_type`: 기사 유형 (league_table, category_detail 등)
-- `league_type`: 리그 (financial_holdings, banks, securities, cards)
-- `category_key`: 부문별 심층 분석 시 카테고리 키
-- `data_snapshot`, `prompt_snapshot`: 생성 시점의 데이터/프롬프트 보존
+
+`article_type` — 기사 유형:
+
+| 값 | 설명 |
+|----|------|
+| league_table | 리그테이블 종합 |
+| category_detail | 부문별 심층 |
+| pension | 퇴직연금 |
+| deep_analysis | 심층 분석 |
+| z_score | Z-Score 분석 |
+| productivity | 생산성 분석 |
+| construction | 구성 분석 |
+
+`league_type`: `financial_holdings`, `banks`, `securities`, `cards`
+
+`category_key`: 부문별 심층 분석 시 카테고리 키 (예: `growth`, `profitability`, `soundness`)
+
+`data_snapshot`, `prompt_snapshot`: 생성 시점의 데이터/프롬프트를 JSON으로 보존하여 재현 가능성 확보
 
 ### 2.6 Auth & AI Domain
 
@@ -225,8 +272,34 @@ erDiagram
 |--------|------|------|
 | users | 사용자 계정 | bcrypt 인증, role(reporter/editor/admin) |
 | sessions | 로그인 세션 | IP, User-Agent 추적 |
-| ai_token_allocations | 월별 AI 토큰 할당 | 사용자별 월 50만 토큰 기본 |
+| ai_token_allocations | 월별 AI 토큰 할당 | 사용자별 월 50만 크레딧 기본 |
 | ai_usage_logs | AI 사용 이력 | 요청 유형, 모델, 토큰 수 |
+
+**역할별 권한**:
+
+| 역할 | 설명 | 고유 권한 |
+|------|------|----------|
+| reporter | 기자 (기본값) | 기본 조회, AI 질의 |
+| editor | 편집자 | + 팀 사용량 조회 |
+| admin | 관리자 | + 사용자 관리, 팀 사용량 조회 |
+
+**AI 사용 조건**: `active == true` AND 월 토큰 한도 미초과 (`can_use_ai?`)
+
+**토큰 크레딧 시스템**:
+- `ai_token_allocations.used_tokens`는 실제 API 토큰이 아닌 **가중 크레딧**
+- 배율: Haiku 1배, Sonnet 3배 (`Ai::TokenManager::TOKEN_COST_MULTIPLIER`)
+- `ai_usage_logs`에는 실제 API 토큰 수가 기록됨 (가중 아님)
+
+**유효한 query_type 값** (`AiUsageLog::QUERY_TYPES`):
+`intent_extraction`, `answer_generation`, `metric_insight`, `draft_generation`, `article_generation`,
+`category_insight`, `category_insight_stream`, `category_chat`, `category_chat_summary`,
+`trend_insight`, `trend_insight_stream`, `trend_chat`, `trend_chat_summary`,
+`integrated_insight_stream`, `integrated_chat`, `integrated_chat_summary`,
+`securities_insight_stream`, `securities_chat`, `securities_chat_summary`
+
+**User 검증 규칙**:
+- 이메일: 자동 정규화 (strip + downcase, `normalizes`)
+- 비밀번호: 8자 이상, 영문+숫자 필수 (`/\A(?=.*[a-zA-Z])(?=.*\d).+\z/`)
 
 ### 2.7 Feedback Domain
 
@@ -312,12 +385,16 @@ class Company < ApplicationRecord
   # 주요 검증
   validates :dart_code, presence: true, uniqueness: true, length: { is: 8 }
   validates :name, presence: true
+  validates :stock_code, length: { is: 6 }, allow_blank: true
+  validates :market_type, inclusion: { in: %w[kospi kosdaq konex unlisted] }, allow_blank: true
 
   # 주요 스코프
-  scope :listed, -> { where.not(stock_code: nil) }
+  scope :listed, -> { where(market_type: %w[kospi kosdaq konex]) }
   scope :by_market, ->(market) { where(market_type: market) }
 end
 ```
+
+> **설계 의도**: Company 모델에는 `performance_values`, `dcm_bond_programs`, `retirement_pension_performances` 등에 대한 `has_many`가 **의도적으로 정의되어 있지 않다**. 이는 대량 데이터의 우발적 eager loading을 방지하기 위함이다. 이들 데이터는 `Performance::Value.where(company: company)` 형태로 직접 쿼리한다.
 
 ### 3.3 Performance 모델
 
@@ -352,6 +429,7 @@ module Performance
     validates :company_id, uniqueness: {
       scope: [:indicator_id, :year, :quarter, :period_type, :basis]
     }
+    validate :value_or_value_text_present  # value 또는 value_text 중 하나 필수
 
     scope :for_company, ->(company) { where(company: company) }
     scope :for_year, ->(year) { where(year: year) }
@@ -374,7 +452,7 @@ end
 | dart_code | VARCHAR(8) | DART 고유번호 (UNIQUE, 사실상 자연키) |
 | name | VARCHAR | 기업명 |
 | stock_code | VARCHAR(6) | 종목코드 (상장사만) |
-| market_type | VARCHAR | KOSPI, KOSDAQ, KONEX, NULL(비상장) |
+| market_type | VARCHAR | kospi, kosdaq, konex, unlisted (소문자) |
 | fiscal_month | INTEGER | 결산월 (12 = 12월 결산) |
 | industry_code | VARCHAR(5) | DART 업종코드 |
 | listed_shares | BIGINT | 상장주식수 |
@@ -407,6 +485,11 @@ end
 | effective_to | DATE | 유효 종료일 (NULL = 현재 유효) |
 
 **UNIQUE 제약**: (parent_company_id, child_company_id, effective_from)
+
+**모델 검증 규칙**:
+- 자기 자신과의 관계 생성 불가 (`parent == child`)
+- 역방향 관계 중복 방지 (A→B 존재 시 B→A 생성 불가)
+- `effective_to`는 `effective_from` 이후여야 함
 
 ### 4.4 performance_categories
 
@@ -462,7 +545,7 @@ end
 |------|------|------|
 | bond_program_id | BIGINT | 프로그램 FK |
 | issue_number | VARCHAR | 회차 (NOT NULL) |
-| bond_type | VARCHAR | 일반/후순위/신종자본 |
+| bond_type | VARCHAR | corporate(일반), subordinated(후순위), hybrid(신종자본) |
 | issue_date | DATE | 발행일 |
 | maturity_date | DATE | 만기일 |
 | issue_amount | DECIMAL(20) | 발행금액 |
@@ -496,8 +579,8 @@ end
 | company_id | BIGINT | 사업자 FK |
 | year | INTEGER | 연도 |
 | quarter | INTEGER | 분기 |
-| product_type | INTEGER | 상품 유형 (enum) |
-| provider_type | VARCHAR | 사업자 유형 |
+| product_type | INTEGER | 상품 유형: 0=guaranteed, 1=guaranteed_deposit, 2=guaranteed_market, 3=non_guaranteed |
+| provider_type | VARCHAR | 사업자 유형: bank, securities, life_insurance, general_insurance |
 | db_reserve / dc_reserve / irp_reserve | DECIMAL(15,2) | 유형별 적립금 |
 | db_return_1y ~ 10y | DECIMAL(8,4) | DB형 기간별 수익률 |
 | dc_return_1y ~ 10y | DECIMAL(8,4) | DC형 기간별 수익률 |
@@ -510,7 +593,7 @@ end
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | user_id | BIGINT | 작성자(생성자) FK |
-| article_type | VARCHAR | 기사 유형 (league_table, category_detail 등) |
+| article_type | VARCHAR | 기사 유형: league_table, category_detail, pension, deep_analysis, z_score, productivity, construction |
 | league_type | VARCHAR | 리그 (financial_holdings, banks 등) |
 | category_key | VARCHAR | 카테고리 키 (부문별 심층용) |
 | year | INTEGER | 연도 |
@@ -553,8 +636,8 @@ end
 |------|------|------|
 | user_id | BIGINT | 사용자 FK |
 | period_start | DATE | 할당 기간 시작일 |
-| monthly_limit | INTEGER | 월 토큰 한도 (기본 500,000) |
-| used_tokens | INTEGER | 사용 토큰 수 |
+| monthly_limit | INTEGER | 월 크레딧 한도 (기본 500,000) |
+| used_tokens | INTEGER | 사용 크레딧 수 (**가중치 적용**: Haiku 1배, Sonnet 3배) |
 
 **UNIQUE 제약**: (user_id, period_start)
 
@@ -563,8 +646,8 @@ end
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
 | user_id | BIGINT | 사용자 FK |
-| query_type | VARCHAR | 요청 유형 |
-| model | VARCHAR | AI 모델 (haiku/sonnet) |
+| query_type | VARCHAR | 요청 유형 (19종, 모델에서 validates inclusion) |
+| model | VARCHAR | AI 모델: haiku, sonnet |
 | input_tokens | INTEGER | 입력 토큰 수 |
 | output_tokens | INTEGER | 출력 토큰 수 |
 | question | TEXT | 질문 내용 |
@@ -808,13 +891,43 @@ rails g migration AddNewColumnToCompanies
 # 두 프로젝트가 같은 DB를 공유하므로 충돌 발생
 ```
 
-#### 삭제 정책
+#### 삭제 정책 (FK ON DELETE 전체 맵)
 
-| 대상 | 정책 | 이유 |
-|------|------|------|
-| 기업 삭제 | CASCADE (연관 데이터 모두 삭제) | 데이터 정합성 |
-| 카테고리 삭제 | RESTRICT (지표 있으면 삭제 불가) | 참조 무결성 |
-| 수집 이력 삭제 | CASCADE (기업 삭제 시 연쇄) | 기업 종속 이력 |
+**Company 삭제 시**:
+
+| FK 소스 테이블 | ON DELETE | 결과 |
+|---------------|----------|------|
+| company_sectors | CASCADE | 연쇄 삭제 |
+| company_relations (parent/child) | CASCADE | 연쇄 삭제 |
+| performance_values | CASCADE | 연쇄 삭제 |
+| ingestions | CASCADE | 연쇄 삭제 |
+| **dcm_bond_programs** | **없음 (RESTRICT)** | **삭제 차단** |
+| **dcm_underwritings** | **없음 (RESTRICT)** | **삭제 차단** |
+| **retirement_pension_performances** | **없음 (RESTRICT)** | **삭제 차단** |
+
+> **주의**: DCM 또는 퇴직연금 데이터가 있는 기업은 직접 삭제 불가. 해당 데이터를 먼저 삭제해야 한다.
+
+**User 삭제 시**:
+
+| FK 소스 테이블 | DB ON DELETE | Rails dependent | 결과 |
+|---------------|-------------|-----------------|------|
+| sessions | CASCADE | :destroy | DB/Rails 모두 삭제 |
+| ai_token_allocations | 없음 (RESTRICT) | :destroy | Rails destroy 시 삭제, SQL DELETE 시 차단 |
+| ai_usage_logs | 없음 (RESTRICT) | :destroy | 동일 |
+| articles | 없음 (RESTRICT) | :destroy | 동일 |
+| feedbacks (admin_user) | 없음 (RESTRICT) | 없음 | 관리자 응답 있으면 차단 |
+
+> **주의**: User는 `User.destroy`(Rails)로만 삭제해야 한다. SQL `DELETE FROM users`는 FK 위반으로 실패할 수 있다.
+
+**기타**:
+
+| 대상 | ON DELETE | 비고 |
+|------|----------|------|
+| performance_categories → indicators | RESTRICT | 지표 있으면 카테고리 삭제 불가 |
+| sectors → sectors (parent) | CASCADE | 상위 삭제 시 하위도 삭제 |
+| feedbacks → feedback_likes | CASCADE | 피드백 삭제 시 공감도 삭제 |
+| dcm_bond_programs → bond_issues | 없음 (RESTRICT) | 발행 건 있으면 프로그램 삭제 불가 |
+| dcm_bond_issues → underwritings | 없음 (RESTRICT) | 인수 참여 있으면 발행 건 삭제 불가 |
 
 ```ruby
 # 카테고리 삭제 시 지표 먼저 삭제 필요
@@ -867,11 +980,69 @@ companies.each { |c| Performance::Value.create!(...) }
 
 ```ruby
 # 인덱스 활용되는 패턴
-company.performance_values.where(year: 2024, quarter: 3)
+Performance::Value.where(company_id: company.id, year: 2024, quarter: 3)
 # → index_performance_values_on_company_id_and_year_and_quarter
 
 Performance::Value.where(indicator_id: 1, year: 2024)
 # → index_performance_values_on_indicator_id_and_year
+```
+
+---
+
+## 8. 시드 데이터 부트스트랩
+
+### 8.1 전체 실행
+
+```bash
+bin/rails db:seed
+```
+
+15개 시드 파일이 의존성 순서대로 자동 실행된다.
+
+### 8.2 시드 파일 의존성 순서
+
+```
+1.  users                          ← 독립 (관리자 계정)
+2.  sectors                        ← 독립 (금융 업종 계층)
+3.  companies_holdings_banks       ← Sector 필요 (4대 지주 + 4대 은행)
+4.  performance_categories         ← 독립 (카테고리 생성)
+5.  companies_securities           ← Sector, Category 필요 (26개 증권사)
+6.  companies_cards                ← Sector 필요 (8개 카드사)
+7.  companies_general              ← Sector 필요 (일반 기업)
+8.  theme_sectors                  ← Company, Sector 필요 (테마 분류 연결)
+9.  company_relations              ← Company 필요 (지주-자회사 관계)
+10. performance_indicators         ← Category 필요 (금융 지표)
+11. performance_indicators_general ← Category 필요 (일반 지표)
+12. values_holdings_banks          ← Company, Indicator 필요 (~2025Q3)
+13. values_holdings_2025q4         ← Company, Indicator 필요 (2025Q4 잠정치)
+14. values_securities              ← Company, Indicator 필요
+15. values_cards                   ← Company, Indicator 필요
+16. articles                       ← User 필요 (목업 기사 3건)
+```
+
+### 8.3 개별 시드 실행
+
+```bash
+# 특정 시드만 실행 (의존 데이터가 이미 있어야 함)
+bin/rails db:seed:users
+bin/rails db:seed:sectors
+bin/rails db:seed:companies_holdings_banks
+bin/rails db:seed:performance_categories
+bin/rails db:seed:performance_indicators
+bin/rails db:seed:values_holdings_banks
+bin/rails db:seed:values_securities
+bin/rails db:seed:values_cards
+```
+
+### 8.4 기타 데이터 관리 Rake 태스크
+
+```bash
+# DART API에서 기업 상세 정보 수집
+bin/rails dart:fetch_sample        # 샘플 기업
+bin/rails dart:fetch_all           # 전체 기업
+
+# WICS 업종 분류 CSV 임포트
+bin/rails import:wics
 ```
 
 ---
@@ -1359,8 +1530,20 @@ Rails 컨벤션(bigint auto-increment PK)을 따르면서, dart_code에 UNIQUE �
 
 구조가 유동적이거나 도메인별로 다를 수 있는 메타데이터에 사용. 자주 검색하는 필드는 별도 컬럼으로 분리 권장.
 
+### Company 모델에 has_many가 없는 이유
+
+ERD 상으로는 Company가 `performance_values`, `dcm_bond_programs`, `retirement_pension_performances` 등과 1:N 관계지만, Rails 모델에는 이 `has_many` 선언이 의도적으로 빠져 있다. `company.performance_values` 같은 호출이 수만 건의 레코드를 로딩할 수 있기 때문이다. 대신 `Performance::Value.where(company: company)` 형태로 필요한 조건과 함께 직접 쿼리한다.
+
+### 토큰 크레딧 vs 실제 토큰
+
+`ai_token_allocations.used_tokens`에 저장되는 값은 모델별 가중치가 적용된 "크레딧"이다 (Sonnet은 Haiku 대비 3배). 반면 `ai_usage_logs`의 `input_tokens`/`output_tokens`는 실제 API 토큰 수다. 데이터 분석 시 이 차이에 주의.
+
+### Integer Enum vs String Enum
+
+시스템 내 대부분의 enum은 **string-backed** (DB에 문자열 저장)이나, `retirement_pension_performances.product_type`만 **integer-backed** (DB에 정수 저장)이다. 직접 SQL 쿼리 시 `WHERE product_type = 0` (guaranteed) 형태로 작성해야 한다.
+
 ---
 
 **작성일**: 2026-02-26
-**버전**: 4.0
+**버전**: 4.1
 **스키마 버전**: 2026_02_20_025743
