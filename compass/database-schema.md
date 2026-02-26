@@ -66,29 +66,58 @@ erDiagram
     sectors ||--o{ company_sectors : has
     sectors ||--o| sectors : "parent (self-ref)"
     companies ||--o{ company_relations : "parent/child"
-    companies ||--o{ extractions : has
-    extraction_runs ||--o{ extractions : contains
+    companies ||--o{ ingestions : has
 ```
 
-#### Metrics Domain (경영성과 / 지배구조 / 재무)
-
-3개 도메인에 동일한 카테고리-지표-값 패턴 적용:
+#### Performance Domain (경영성과)
 
 ```mermaid
 erDiagram
-    domain_categories ||--o{ domain_indicators : has
-    domain_indicators ||--o{ domain_values : has
-    companies ||--o{ domain_values : has
+    performance_categories ||--o{ performance_indicators : has
+    performance_indicators ||--o{ performance_values : has
+    companies ||--o{ performance_values : has
 ```
 
-#### League Table Domain (리그테이블)
+#### DCM Domain (채권시장)
 
 ```mermaid
 erDiagram
-    ranking_definitions ||--o{ ranking_snapshots : has
-    ranking_snapshots ||--o{ ranking_entries : has
-    companies ||--o{ ranking_entries : has
-    domain_indicators ||--o{ ranking_definitions : "polymorphic"
+    companies ||--o{ dcm_bond_programs : "발행사"
+    dcm_bond_programs ||--o{ dcm_bond_issues : has
+    dcm_bond_issues ||--o{ dcm_underwritings : has
+    companies ||--o{ dcm_underwritings : "인수사"
+```
+
+#### Retirement Pension Domain (퇴직연금)
+
+```mermaid
+erDiagram
+    companies ||--o{ retirement_pension_performances : has
+```
+
+#### Articles Domain (AI 기사)
+
+```mermaid
+erDiagram
+    users ||--o{ articles : creates
+    users ||--o{ articles : "publishes (published_by)"
+```
+
+#### Auth & AI Domain
+
+```mermaid
+erDiagram
+    users ||--o{ sessions : has
+    users ||--o{ ai_token_allocations : has
+    users ||--o{ ai_usage_logs : has
+```
+
+#### Feedback Domain
+
+```mermaid
+erDiagram
+    feedbacks ||--o{ feedback_likes : has
+    users ||--o| feedbacks : "admin responds"
 ```
 
 ---
@@ -113,80 +142,118 @@ erDiagram
 **주요 특징**:
 - dart_code를 기업 식별자로 사용 (DART가 주요 데이터 소스이며, 모든 법인에 고유 번호 부여)
 - stock_code는 상장사만 존재
+- industry_code: DART 업종코드 (5자리)
+- listed_shares, stock_price, stock_price_date: 시가총액 산출용
 - 기업 간 관계에 effective_from/effective_to로 유효 기간 관리
 
-### 2.2 Metrics Domain (지표 데이터)
+### 2.2 Performance Domain (경영성과)
 
-**역할**: 경영성과, 지배구조, 재무지표 데이터 관리
-
-**핵심 테이블**:
-
-| 도메인 | 테이블 접두어 | 목적 | 데이터 주기 |
-|--------|-------------|------|------------|
-| Performance | performance_ | 경영실적 (매출, 이익 등) | 연간/분기 |
-| Governance | governance_ | 기업지배구조 (이사회, 감사위원회 등) | 연간만 |
-| Finance | finance_ | 재무비율 (부채비율, BIS비율 등) | 연간/분기 |
-
-**도메인별 차이점**:
-
-| 항목 | Performance | Governance | Finance |
-|------|-------------|------------|---------|
-| quarter 컬럼 | O | X | O |
-| 특수 컬럼 | common (공통지표 여부) | data_type (값 유형) | - |
-
-**Governance의 data_type**:
-- 0: boolean (예: 감사위원회 설치 여부)
-- 1: numeric (예: 사외이사 수)
-- 2: text (예: 최대주주명)
-- 3: enum (예: 준법지원인 있음/없음/해당없음)
-
-### 2.3 League Table Domain (리그테이블)
-
-**역할**: 리그테이블 정의, 스냅샷, 순위 항목 관리
+**역할**: 경영성과 지표 데이터 관리
 
 **핵심 테이블**:
 
-| 테이블 | 역할 | 저장 정보 |
-|--------|------|----------|
-| ranking_definitions | 리그테이블 기준 설정 | 기준 지표, 대상 범위, 정렬 방향 |
-| ranking_snapshots | 특정 시점 계산 결과 | 계산일, 대상 기업 수 |
-| ranking_entries | 기업별 순위와 값 | 순위, 값, 변동폭, 백분위 |
-
-**Polymorphic Association**:
-- ranking_definitions.indicator_type: "Performance::Indicator", "Governance::Indicator", "Finance::Indicator"
-- ranking_definitions.indicator_id: 해당 테이블의 ID
-
-**순위 계산 흐름**:
-
-```mermaid
-flowchart LR
-    A["Definition 조회"] --> B["지표 값 조회"]
-    B --> C["대상 필터링"]
-    C --> D["정렬/순위 부여"]
-    D --> E["Snapshot 생성"]
-    E --> F["Entry 생성"]
-```
-
-### 2.4 Extraction Domain (데이터 추출)
-
-**역할**: DART 등 외부 소스에서 데이터 추출 이력 관리
-
-**핵심 테이블**:
-
-| 테이블 | 역할 | 예시 |
+| 테이블 | 역할 | 비고 |
 |--------|------|------|
-| extraction_runs | 배치 단위 실행 | "2024년 1분기 전체 금융사 재무제표 수집" |
-| extractions | 개별 문서 추출 | "KB금융 2024Q1 분기보고서 추출" |
+| performance_categories | 지표 카테고리 | 수익성, 성장성 등 |
+| performance_indicators | 지표 정의 | ROE, ROA 등 |
+| performance_values | 지표 값 | 기업별, 기간별 실적 |
 
-**상태 값**:
+**indicators 주요 컬럼**:
+- `common`: 전 업종 공통 지표 여부
+- `applicable_to`: 적용 대상 업종 배열 (예: `["banks", "securities"]`)
+- `supported_period_types`: 지원하는 기간 유형 배열 (예: `["q", "ytd"]`)
 
-| extraction_runs.status | extractions.status |
-|------------------------|-------------------|
-| 0: running | 0: pending |
-| 1: completed | 1: running |
-| 2: no_target | 2: success |
-| 3: failed | 3: failed |
-| | 4: retrying |
+**values 주요 컬럼**:
+- `basis`: 연결/별도 기준 (`consolidated` 또는 `separate`)
+- `period_type`: 기간 유형 (`q`=분기, `ytd`=누적, `pit`=시점)
+- `source_cell`, `source_sheet`: 원본 데이터 추적용
+
+**유니크 제약**: `(company_id, indicator_id, year, quarter, period_type, basis)`
+
+### 2.3 DCM Domain (채권시장)
+
+**역할**: 채권 발행 및 인수 데이터 관리
+
+**핵심 테이블**:
+
+| 테이블 | 역할 | 비고 |
+|--------|------|------|
+| dcm_bond_programs | MTN 프로그램 등 | 발행사(company)와 연결 |
+| dcm_bond_issues | 개별 채권 발행 건 | 발행 조건, 수요예측 결과 |
+| dcm_underwritings | 인수 참여 | 인수사(company)와 연결 |
+
+**관계 구조**: `companies → bond_programs → bond_issues → underwritings ↔ companies`
+
+### 2.4 Retirement Pension Domain (퇴직연금)
+
+**역할**: 퇴직연금 사업자별 실적 관리
+
+**핵심 테이블**:
+
+| 테이블 | 역할 | 비고 |
+|--------|------|------|
+| retirement_pension_performances | 사업자별 실적 | DB/DC/IRP 적립금·수익률 |
+
+**주요 컬럼**:
+- `product_type`: 상품 유형 (guaranteed, guaranteed_deposit, guaranteed_market, non_guaranteed)
+- `provider_type`: 사업자 유형 (은행, 증권, 보험 등)
+- DB/DC/IRP별 적립금(`*_reserve`) 및 기간별 수익률(`*_return_1y` ~ `*_return_10y`)
+
+### 2.5 Articles Domain (AI 기사)
+
+**역할**: AI 생성 기사 관리
+
+**핵심 테이블**:
+
+| 테이블 | 역할 | 비고 |
+|--------|------|------|
+| articles | AI 기사 | 유형, 리그, 기간, 본문 등 |
+
+**주요 컬럼**:
+- `article_type`: 기사 유형 (league_table, category_detail 등)
+- `league_type`: 리그 (financial_holdings, banks, securities, cards)
+- `category_key`: 부문별 심층 분석 시 카테고리 키
+- `data_snapshot`, `prompt_snapshot`: 생성 시점의 데이터/프롬프트 보존
+
+### 2.6 Auth & AI Domain
+
+**역할**: 사용자 인증 및 AI 토큰 관리
+
+**핵심 테이블**:
+
+| 테이블 | 역할 | 비고 |
+|--------|------|------|
+| users | 사용자 계정 | bcrypt 인증, role(reporter/editor/admin) |
+| sessions | 로그인 세션 | IP, User-Agent 추적 |
+| ai_token_allocations | 월별 AI 토큰 할당 | 사용자별 월 50만 토큰 기본 |
+| ai_usage_logs | AI 사용 이력 | 요청 유형, 모델, 토큰 수 |
+
+### 2.7 Feedback Domain
+
+**역할**: 사용자 피드백 관리
+
+**핵심 테이블**:
+
+| 테이블 | 역할 | 비고 |
+|--------|------|------|
+| feedbacks | 피드백 | 카테고리(bug/feature/improvement/other) |
+| feedback_likes | 공감 | IP 해시 기반 중복 방지 |
+
+### 2.8 Ingestion Domain (데이터 수집 이력)
+
+**역할**: compass-engine의 데이터 수집 이력 관리
+
+**핵심 테이블**:
+
+| 테이블 | 역할 | 비고 |
+|--------|------|------|
+| ingestions | 수집 이력 | 소스(dart/factbook/fss/crefia), 상태, 결과 |
+
+**주요 컬럼**:
+- `source`: 데이터 출처 (dart, factbook, fss, crefia)
+- `sector`: 대상 업종 (holdings, banks, securities, cards)
+- `status`: 처리 상태 (success, partial, failed)
+- `saved_count`, `updated_count`: 처리 건수
 
 ---
 
@@ -202,24 +269,25 @@ app/models/
 ├── sector.rb
 ├── company_sector.rb
 ├── company_relation.rb
-├── extraction_run.rb
-├── extraction.rb
 ├── performance/
 │   ├── category.rb
 │   ├── indicator.rb
 │   └── value.rb
-├── governance/
-│   ├── category.rb
-│   ├── indicator.rb
-│   └── value.rb
-├── finance/
-│   ├── category.rb
-│   ├── indicator.rb
-│   └── value.rb
-└── ranking/
-    ├── definition.rb
-    ├── snapshot.rb
-    └── entry.rb
+├── dcm/
+│   ├── bond_program.rb
+│   ├── bond_issue.rb
+│   └── underwriting.rb
+├── retirement_pension/
+│   └── performance.rb
+├── article.rb
+├── user.rb
+├── session.rb
+├── current.rb
+├── ai_token_allocation.rb
+├── ai_usage_log.rb
+├── ingestion.rb
+├── feedback.rb
+└── feedback_like.rb
 ```
 
 ### 3.2 Company 모델 (중심 엔티티)
@@ -235,18 +303,23 @@ class Company < ApplicationRecord
            foreign_key: :parent_company_id
   has_many :parent_relations, class_name: 'CompanyRelation',
            foreign_key: :child_company_id
+  has_many :subsidiaries, through: :child_relations, source: :child_company
+  has_many :parent_companies, through: :parent_relations, source: :parent_company
 
-  # 지표 값
-  has_many :performance_values, class_name: 'Performance::Value'
-  has_many :governance_values, class_name: 'Governance::Value'
-  has_many :finance_values, class_name: 'Finance::Value'
+  # 데이터
+  has_many :ingestions
 
-  # 리그테이블
-  has_many :ranking_entries
+  # 주요 검증
+  validates :dart_code, presence: true, uniqueness: true, length: { is: 8 }
+  validates :name, presence: true
+
+  # 주요 스코프
+  scope :listed, -> { where.not(stock_code: nil) }
+  scope :by_market, ->(market) { where(market_type: market) }
 end
 ```
 
-### 3.3 Metrics 모델 (Performance 예시)
+### 3.3 Performance 모델
 
 ```ruby
 # app/models/performance/indicator.rb
@@ -257,7 +330,6 @@ module Performance
     belongs_to :category, class_name: 'Performance::Category'
     has_many :values, class_name: 'Performance::Value',
              foreign_key: :indicator_id, dependent: :destroy
-    has_many :ranking_definitions, as: :indicator
 
     validates :code, presence: true, uniqueness: true
     validates :name, presence: true
@@ -269,18 +341,22 @@ module Performance
   class Value < ApplicationRecord
     self.table_name = 'performance_values'
 
+    PERIOD_TYPES = { quarterly: "q", ytd: "ytd", point_in_time: "pit" }.freeze
+
     belongs_to :company
     belongs_to :indicator, class_name: 'Performance::Indicator'
-    belongs_to :extraction, optional: true
 
     validates :year, presence: true
+    validates :quarter, inclusion: { in: 1..4 }, allow_nil: true
+    validates :period_type, inclusion: { in: PERIOD_TYPES.values }, allow_nil: true
     validates :company_id, uniqueness: {
-      scope: [:indicator_id, :year, :quarter]
+      scope: [:indicator_id, :year, :quarter, :period_type, :basis]
     }
 
-    scope :annual, -> { where(quarter: nil) }
-    scope :quarterly, -> { where.not(quarter: nil) }
+    scope :for_company, ->(company) { where(company: company) }
     scope :for_year, ->(year) { where(year: year) }
+    scope :for_quarter, ->(q) { where(quarter: q) }
+    scope :for_period_type, ->(pt) { where(period_type: pt) }
   end
 end
 ```
@@ -300,14 +376,18 @@ end
 | stock_code | VARCHAR(6) | 종목코드 (상장사만) |
 | market_type | VARCHAR | KOSPI, KOSDAQ, KONEX, NULL(비상장) |
 | fiscal_month | INTEGER | 결산월 (12 = 12월 결산) |
+| industry_code | VARCHAR(5) | DART 업종코드 |
+| listed_shares | BIGINT | 상장주식수 |
+| stock_price | DECIMAL(12,2) | 주가 |
+| stock_price_date | DATE | 주가 기준일 |
 
-**주요 인덱스**: dart_code (UNIQUE), stock_code, market_type
+**주요 인덱스**: dart_code (UNIQUE), stock_code, market_type, industry_code
 
 ### 4.2 sectors
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| code | VARCHAR(6) | 분류 코드 (UNIQUE) |
+| code | VARCHAR | 분류 코드 (UNIQUE) |
 | name | VARCHAR | 분류명 |
 | kind | VARCHAR | official(공식), theme(테마) |
 | depth | INTEGER | 계층 깊이 (1, 2, 3...) |
@@ -328,9 +408,7 @@ end
 
 **UNIQUE 제약**: (parent_company_id, child_company_id, effective_from)
 
-### 4.4 {domain}_categories / indicators / values
-
-**categories** (3개 도메인 동일):
+### 4.4 performance_categories
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
@@ -338,85 +416,229 @@ end
 | name | VARCHAR | 카테고리명 |
 | display_order | INTEGER | UI 표시 순서 |
 
-**indicators** (공통 + 도메인별 차이):
-
-| 컬럼 | 타입 | 설명 | Performance | Governance | Finance |
-|------|------|------|-------------|------------|---------|
-| code | VARCHAR | 지표 코드 | O | O | O |
-| name | VARCHAR | 지표명 | O | O | O |
-| unit | VARCHAR | 단위 (%, 백만원 등) | O | O | O |
-| common | BOOLEAN | 전 업종 공통 지표 | O | X | X |
-| data_type | INTEGER | 값 유형 | X | O | X |
-
-**values** (공통 + 도메인별 차이):
-
-| 컬럼 | 타입 | Performance | Governance | Finance |
-|------|------|-------------|------------|---------|
-| company_id | BIGINT | O | O | O |
-| indicator_id | BIGINT | O | O | O |
-| year | INTEGER | O | O | O |
-| quarter | INTEGER | O (NULL=연간) | X | O (NULL=연간) |
-| value | DECIMAL | O | O | O |
-| value_text | VARCHAR | O | O | O |
-
-### 4.5 ranking_definitions / snapshots / entries
-
-**definitions**:
+### 4.5 performance_indicators
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| name | VARCHAR | 리그테이블명 |
-| indicator_type | VARCHAR | Polymorphic 타입 |
-| indicator_id | BIGINT | Polymorphic ID |
-| scope_type | VARCHAR | all, sector, market |
-| sort_direction | VARCHAR | desc, asc |
+| category_id | BIGINT | 카테고리 FK (RESTRICT) |
+| code | VARCHAR | 지표 코드 (UNIQUE) |
+| name | VARCHAR | 지표명 |
+| unit | VARCHAR | 단위 (%, 백만원 등) |
+| common | BOOLEAN | 전 업종 공통 지표 여부 |
+| applicable_to | VARCHAR[] | 적용 대상 업종 배열 |
+| supported_period_types | VARCHAR[] | 지원 기간 유형 배열 |
+| formula | TEXT | 산출 공식 |
+| hierarchy | JSONB | 계층 구조 |
 
-**snapshots**:
+### 4.6 performance_values
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| ranking_definition_id | BIGINT | 정의 참조 |
+| company_id | BIGINT | 기업 FK |
+| indicator_id | BIGINT | 지표 FK |
 | year | INTEGER | 연도 |
-| quarter | INTEGER | 분기 (NULL = 연간) |
-| calculated_at | TIMESTAMP | 계산 시점 |
-| total_companies | INTEGER | 포함된 기업 수 |
+| quarter | INTEGER | 분기 (NULL=연간) |
+| value | DECIMAL(20,4) | 수치 값 |
+| value_text | VARCHAR | 텍스트 값 |
+| basis | VARCHAR(15) | 연결/별도 (consolidated/separate) |
+| period_type | VARCHAR(10) | 기간 유형 (q/ytd/pit) |
+| source_cell | VARCHAR(10) | 원본 셀 위치 |
+| source_sheet | VARCHAR(50) | 원본 시트명 |
+| calculated | BOOLEAN | 계산값 여부 |
 
-**entries**:
+**UNIQUE 제약**: (company_id, indicator_id, year, quarter, period_type, basis)
+
+### 4.7 dcm_bond_programs
 
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| ranking_snapshot_id | BIGINT | 스냅샷 참조 |
-| company_id | BIGINT | 기업 참조 |
-| rank | INTEGER | 순위 |
-| value | DECIMAL | 기준 지표 값 |
-| percentile | DECIMAL(5,2) | 백분위 |
-| rank_change | INTEGER | 이전 대비 순위 변동 |
+| company_id | BIGINT | 발행사 FK |
+| established_on | DATE | 프로그램 설정일 |
+| total_limit_amount | DECIMAL(20) | 총 한도 금액 |
+
+### 4.8 dcm_bond_issues
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| bond_program_id | BIGINT | 프로그램 FK |
+| issue_number | VARCHAR | 회차 (NOT NULL) |
+| bond_type | VARCHAR | 일반/후순위/신종자본 |
+| issue_date | DATE | 발행일 |
+| maturity_date | DATE | 만기일 |
+| issue_amount | DECIMAL(20) | 발행금액 |
+| coupon_rate | DECIMAL(6,4) | 표면금리 |
+| determined_rate | DECIMAL(6,4) | 확정금리 |
+| rating | VARCHAR | 신용등급 |
+| demand_amount | DECIMAL(20) | 수요예측 참여금액 |
+| competition_rate | DECIMAL(8,2) | 경쟁률 |
+| filing_date | DATE | 신고일 |
+
+**주요 인덱스**: bond_program_id, bond_type, issue_date, filing_date, rating, issue_number
+
+### 4.9 dcm_underwritings
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| bond_issue_id | BIGINT | 채권 FK |
+| company_id | BIGINT | 인수사 FK |
+| role | VARCHAR | lead/co_lead/co_manager/syndicate |
+| amount | DECIMAL(20) | 인수금액 |
+| fee_rate | DECIMAL(6,4) | 수수료율 |
+| fee_amount | DECIMAL(20) | 수수료 금액 |
+| task | VARCHAR | 업무 내용 |
+
+**UNIQUE 제약**: (bond_issue_id, company_id)
+
+### 4.10 retirement_pension_performances
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| company_id | BIGINT | 사업자 FK |
+| year | INTEGER | 연도 |
+| quarter | INTEGER | 분기 |
+| product_type | INTEGER | 상품 유형 (enum) |
+| provider_type | VARCHAR | 사업자 유형 |
+| db_reserve / dc_reserve / irp_reserve | DECIMAL(15,2) | 유형별 적립금 |
+| db_return_1y ~ 10y | DECIMAL(8,4) | DB형 기간별 수익률 |
+| dc_return_1y ~ 10y | DECIMAL(8,4) | DC형 기간별 수익률 |
+| irp_return_1y ~ 10y | DECIMAL(8,4) | IRP형 기간별 수익률 |
+
+**UNIQUE 제약**: (company_id, year, quarter, product_type)
+
+### 4.11 articles
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| user_id | BIGINT | 작성자(생성자) FK |
+| article_type | VARCHAR | 기사 유형 (league_table, category_detail 등) |
+| league_type | VARCHAR | 리그 (financial_holdings, banks 등) |
+| category_key | VARCHAR | 카테고리 키 (부문별 심층용) |
+| year | INTEGER | 연도 |
+| quarter | INTEGER | 분기 |
+| period_type | VARCHAR | 기간 유형 |
+| title | VARCHAR | 제목 |
+| subtitle | VARCHAR | 부제 |
+| body | TEXT | 본문 (마크다운) |
+| status | VARCHAR | 상태 (draft/reviewing/published) |
+| data_snapshot | TEXT | 생성 시 데이터 스냅샷 |
+| prompt_snapshot | TEXT | 생성 시 프롬프트 스냅샷 |
+| published_at | TIMESTAMP | 게시일 |
+| published_by_id | BIGINT | 게시자 FK |
+
+**주요 인덱스**: (article_type, league_type, year, quarter), (league_type, category_key), status, published_at
+
+### 4.12 users
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| email_address | VARCHAR | 이메일 (UNIQUE) |
+| name | VARCHAR | 이름 |
+| password_digest | VARCHAR | bcrypt 해시 |
+| role | VARCHAR | 역할 (reporter/editor/admin) |
+| active | BOOLEAN | 활성 상태 |
+| must_change_password | BOOLEAN | 비밀번호 변경 필요 여부 |
+
+### 4.13 sessions
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| user_id | BIGINT | 사용자 FK (CASCADE) |
+| ip_address | VARCHAR | 접속 IP |
+| user_agent | VARCHAR | 브라우저 정보 |
+| remember_me | BOOLEAN | 로그인 유지 여부 |
+
+### 4.14 ai_token_allocations
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| user_id | BIGINT | 사용자 FK |
+| period_start | DATE | 할당 기간 시작일 |
+| monthly_limit | INTEGER | 월 토큰 한도 (기본 500,000) |
+| used_tokens | INTEGER | 사용 토큰 수 |
+
+**UNIQUE 제약**: (user_id, period_start)
+
+### 4.15 ai_usage_logs
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| user_id | BIGINT | 사용자 FK |
+| query_type | VARCHAR | 요청 유형 |
+| model | VARCHAR | AI 모델 (haiku/sonnet) |
+| input_tokens | INTEGER | 입력 토큰 수 |
+| output_tokens | INTEGER | 출력 토큰 수 |
+| question | TEXT | 질문 내용 |
+| success | BOOLEAN | 성공 여부 |
+
+### 4.16 ingestions
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| company_id | BIGINT | 기업 FK (NULL 가능) |
+| year | INTEGER | 연도 |
+| quarter | INTEGER | 분기 |
+| source | VARCHAR | 데이터 출처 (dart/factbook/fss/crefia) |
+| sector | VARCHAR | 업종 (holdings/banks/securities/cards) |
+| status | VARCHAR | 상태 (success/partial/failed) |
+| saved_count | INTEGER | 신규 저장 건수 |
+| updated_count | INTEGER | 업데이트 건수 |
+| total_indicators | INTEGER | 전체 지표 수 |
+| source_document_id | VARCHAR | 원본 문서 ID |
+| triggered_by | VARCHAR | 트리거 주체 |
+| started_at / completed_at | TIMESTAMP | 처리 시간 |
+| error_message | TEXT | 오류 메시지 |
+
+**UNIQUE 제약**: (company_id, year, quarter, source), (year, quarter, source) WHERE company_id IS NULL
+
+### 4.17 feedbacks
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| title | VARCHAR(200) | 제목 |
+| content | TEXT | 내용 |
+| nickname | VARCHAR(50) | 작성자 닉네임 |
+| category | VARCHAR | 카테고리 (bug/feature/improvement/other) |
+| status | VARCHAR | 상태 (open/answered/closed) |
+| ip_address_hash | VARCHAR | IP 해시 |
+| likes_count | INTEGER | 공감 수 (counter cache) |
+| admin_user_id | BIGINT | 응답한 관리자 FK |
+| admin_response | TEXT | 관리자 응답 |
+| admin_responded_at | TIMESTAMP | 응답 시간 |
+
+### 4.18 feedback_likes
+
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| feedback_id | BIGINT | 피드백 FK (CASCADE) |
+| ip_address_hash | VARCHAR | IP 해시 |
+
+**UNIQUE 제약**: (feedback_id, ip_address_hash)
 
 ---
 
 ## 5. 쿼리 패턴
 
-### 5.1 기본 조회
+### 5.1 Performance 기본 조회
 
 ```ruby
 # 특정 기업의 최근 5년 ROE 추이
 company = Company.find_by(dart_code: '00164779')
 roe = Performance::Indicator.find_by(code: 'ROE')
 
-company.performance_values
-       .where(indicator: roe, year: 2020..2024)
-       .annual
-       .order(:year)
+Performance::Value.where(company: company, indicator: roe)
+                  .where(year: 2020..2024)
+                  .where(quarter: nil)
+                  .where(basis: 'consolidated')
+                  .order(:year)
 ```
 
 ```ruby
-# 은행 업종의 2024년 BIS비율 비교
-bank = Sector.find_by(code: 'BANK', kind: 'official')
-bis = Finance::Indicator.find_by(code: 'BIS_RATIO')
-
-Finance::Value.joins(company: :sectors)
-              .where(sectors: { id: bank.id })
-              .where(indicator: bis, year: 2024, quarter: nil)
+# 특정 기업의 분기별 당기순이익 (누적 기준)
+Performance::Value.where(company: company, indicator: net_income)
+                  .for_year(2024)
+                  .for_period_type('ytd')
+                  .where(basis: 'consolidated')
+                  .order(:quarter)
 ```
 
 ### 5.2 그룹사 연계 분석
@@ -442,57 +664,40 @@ subsidiary_ids = kb.child_relations
 
 Performance::Value.where(company_id: [kb.id] + subsidiary_ids)
                   .where(indicator: roe, year: 2024, quarter: nil)
+                  .where(basis: 'consolidated')
                   .includes(:company)
 ```
 
+### 5.3 DCM 조회
+
 ```ruby
-# 4대 금융지주의 은행 자회사끼리 비교
-# (KB국민은행 vs 신한은행 vs 하나은행 vs 우리은행)
-holdings_theme = Sector.find_by(code: '4_FINANCIAL_HOLDINGS', kind: 'theme')
-bank_sector = Sector.find_by(code: 'BANK', kind: 'official')
+# 2024년 3분기 채권 발행 건 조회
+Dcm::BondIssue.in_period(2024, 3)
+              .includes(bond_program: :company, underwritings: :company)
+              .by_amount
 
-holding_ids = Company.joins(:sectors)
-                     .where(sectors: { id: holdings_theme.id })
-                     .pluck(:id)
-
-bank_subsidiary_ids = CompanyRelation
-  .where(parent_company_id: holding_ids, relation_type: 'subsidiary')
-  .where('effective_to IS NULL')
-  .joins(:child_company => :sectors)
-  .where(sectors: { id: bank_sector.id })
-  .pluck(:child_company_id)
-
-Performance::Value.where(company_id: bank_subsidiary_ids)
-                  .where(indicator: roe, year: 2024)
+# 특정 증권사의 인수 실적
+Dcm::Underwriting.by_company(company_id)
+                 .in_period(2024, 3)
+                 .lead_roles
+                 .includes(bond_issue: { bond_program: :company })
 ```
 
-### 5.3 지배구조 비교
+### 5.4 Retirement Pension 조회
 
 ```ruby
-# 4대 금융지주 이사회 구조 비교
-theme = Sector.find_by(code: '4_FINANCIAL_HOLDINGS', kind: 'theme')
-category = Governance::Category.find_by(code: 'board_structure')
+# 2024년 3분기 퇴직연금 실적 (원리금보장형)
+RetirementPension::Performance
+  .for_period(2024, 3)
+  .comparable_guaranteed
+  .by_total_reserve
+  .includes(:company)
 
-Governance::Value.joins(:indicator, company: :sectors)
-                 .where(sectors: { id: theme.id })
-                 .where(indicators: { category_id: category.id })
-                 .where(year: 2024)
-```
-
-### 5.4 리그테이블 조회
-
-```ruby
-# 특정 도메인의 리그테이블 목록
-RankingDefinition.where(indicator_type: 'Performance::Indicator')
-                 .includes(:indicator)
-
-# 최신 스냅샷과 순위 조회
-RankingSnapshot.includes(entries: :company)
-               .where(ranking_definition: definition)
-               .order(year: :desc, quarter: :desc)
-               .first
-               .entries
-               .order(:rank)
+# 특정 사업자의 수익률 추이
+RetirementPension::Performance
+  .where(company: company)
+  .comparable_guaranteed
+  .order(:year, :quarter)
 ```
 
 ---
@@ -519,7 +724,8 @@ indicator = Performance::Indicator.create!(
   name: '신규 비율',
   unit: '%',
   formula: '(A / B) * 100',
-  common: true
+  common: true,
+  supported_period_types: ['q', 'ytd']
 )
 
 # 3. 값 저장
@@ -527,47 +733,61 @@ Performance::Value.create!(
   company: company,
   indicator: indicator,
   year: 2024,
-  quarter: nil,
-  value: 15.5
+  quarter: 3,
+  value: 15.5,
+  basis: 'consolidated',
+  period_type: 'q'
 )
 ```
 
 ### 6.2 새로운 도메인 추가
 
-경영성과/지배구조/재무 외에 새로운 도메인(예: ESG)이 필요한 경우:
+DCM 패턴을 참조하여 새로운 도메인을 추가할 수 있다:
 
 ```bash
 # 1. 마이그레이션 생성
-rails g migration CreateEsgTables
+rails g migration CreateEcmTables
 
-# 2. 동일한 카테고리-지표-값 구조 생성
-- esg_categories
-- esg_indicators
-- esg_values
+# 2. 도메인 테이블 생성 (접두어 통일: ecm_)
+- ecm_deals
+- ecm_participants
 
-# 3. 모델 생성
-app/models/esg/
-├── category.rb
-├── indicator.rb
-└── value.rb
-
-# 4. ranking_definitions의 indicator_type에 'Esg::Indicator' 추가
+# 3. 모델 생성 (네임스페이스 분리)
+app/models/ecm/
+├── deal.rb
+└── participant.rb
 ```
 
-### 6.3 새로운 리그테이블 생성
+### 6.3 새로운 리그테이블 추가
+
+리그테이블은 `app/lib/league_indicators/` 모듈에서 코드 레벨로 관리한다:
 
 ```ruby
-RankingDefinition.create!(
-  name: 'ESG 종합점수 리그테이블',
-  description: 'ESG 종합점수 기준 전체 기업 순위',
-  ranking_type: 'esg',
-  indicator_type: 'Esg::Indicator',
-  indicator_id: Esg::Indicator.find_by(code: 'TOTAL_SCORE').id,
-  scope_type: 'all',
-  sort_direction: 'desc',
-  active: true
-)
+# 1. 지표 모듈 정의
+# app/lib/league_indicators/new_league.rb
+module LeagueIndicators
+  module NewLeague
+    COMPANY_METADATA = {
+      # dart_code 기반 기업 정의
+    }.freeze
+
+    INDICATORS = {
+      # DB indicator 매핑
+    }.freeze
+
+    CATEGORY_SCHEMA = {
+      # UI 표시 구조 (INDICATORS와 반드시 동기화)
+    }.freeze
+  end
+end
+
+# 2. 서비스 생성
+# app/services/new_league_data_service.rb (BaseLeagueDataService 상속)
+
+# 3. 컨트롤러/뷰에서 서비스 호출
 ```
+
+**주의**: INDICATORS에 지표를 추가·수정할 때 반드시 CATEGORY_SCHEMA도 함께 업데이트할 것.
 
 ---
 
@@ -591,7 +811,7 @@ rails g migration AddNewColumnToCompanies
 |------|------|------|
 | 기업 삭제 | CASCADE (연관 데이터 모두 삭제) | 데이터 정합성 |
 | 카테고리 삭제 | RESTRICT (지표 있으면 삭제 불가) | 참조 무결성 |
-| 추출 기록 삭제 | SET NULL (값의 extraction_id만 NULL) | 값 데이터 보존 |
+| 수집 이력 삭제 | CASCADE (기업 삭제 시 연쇄) | 기업 종속 이력 |
 
 ```ruby
 # 카테고리 삭제 시 지표 먼저 삭제 필요
@@ -610,22 +830,10 @@ Performance::Value.where(quarter: nil)
 # ✅ 분기 데이터
 Performance::Value.where.not(quarter: nil)
 
-# ✅ 특정 분기
-Performance::Value.where(year: 2024, quarter: 1)
+# ✅ 특정 분기 (basis, period_type 명시)
+Performance::Value.where(year: 2024, quarter: 3, basis: 'consolidated', period_type: 'q')
 
 # ❌ quarter: 0 사용 금지 (연간은 NULL로 표현)
-```
-
-#### Polymorphic 쿼리
-
-```ruby
-# ✅ indicator를 함께 로드
-RankingDefinition.includes(:indicator)
-
-# ✅ 특정 도메인만 조회
-RankingDefinition.where(indicator_type: 'Performance::Indicator')
-
-# ❌ joins 사용 시 주의 (polymorphic은 직접 join 불가)
 ```
 
 ### 7.3 성능 최적화
@@ -640,8 +848,10 @@ end
 
 # ✅ bulk insert
 Performance::Value.insert_all([
-  { company_id: 1, indicator_id: 1, year: 2024, value: 10.5 },
-  { company_id: 2, indicator_id: 1, year: 2024, value: 12.3 },
+  { company_id: 1, indicator_id: 1, year: 2024, value: 10.5,
+    basis: 'consolidated', period_type: 'q' },
+  { company_id: 2, indicator_id: 1, year: 2024, value: 12.3,
+    basis: 'consolidated', period_type: 'q' },
 ])
 
 # ❌ 루프 내 개별 저장 (N+1 문제)
@@ -654,7 +864,7 @@ companies.each { |c| Performance::Value.create!(...) }
 
 ```ruby
 # 인덱스 활용되는 패턴
-company.performance_values.where(year: 2024)
+company.performance_values.where(year: 2024, quarter: 3)
 # → index_performance_values_on_company_id_and_year_and_quarter
 
 Performance::Value.where(indicator_id: 1, year: 2024)
@@ -679,9 +889,13 @@ CREATE TABLE companies (
   stock_code      VARCHAR(6),
   corporate_number VARCHAR(13),
   business_number VARCHAR(10),
+  industry_code   VARCHAR(5),
   market_type     VARCHAR,
   representative_name VARCHAR,
   fiscal_month    INTEGER,
+  listed_shares   BIGINT,
+  stock_price     DECIMAL(12,2),
+  stock_price_date DATE,
   established_on  DATE,
   address         TEXT,
   phone           VARCHAR,
@@ -695,6 +909,7 @@ CREATE TABLE companies (
 CREATE UNIQUE INDEX index_companies_on_dart_code ON companies(dart_code);
 CREATE INDEX index_companies_on_stock_code ON companies(stock_code);
 CREATE INDEX index_companies_on_market_type ON companies(market_type);
+CREATE INDEX index_companies_on_industry_code ON companies(industry_code);
 ```
 
 ### sectors
@@ -702,7 +917,7 @@ CREATE INDEX index_companies_on_market_type ON companies(market_type);
 ```sql
 CREATE TABLE sectors (
   id         BIGSERIAL PRIMARY KEY,
-  code       VARCHAR(6) NOT NULL UNIQUE,
+  code       VARCHAR NOT NULL UNIQUE,
   name       VARCHAR NOT NULL,
   kind       VARCHAR DEFAULT 'official',
   depth      INTEGER NOT NULL,
@@ -747,12 +962,17 @@ CREATE TABLE company_relations (
   updated_at           TIMESTAMP NOT NULL,
   UNIQUE(parent_company_id, child_company_id, effective_from)
 );
+
+CREATE INDEX index_company_relations_on_child_company_id ON company_relations(child_company_id);
+CREATE INDEX index_company_relations_on_parent_company_id ON company_relations(parent_company_id);
+CREATE INDEX index_company_relations_on_relation_type ON company_relations(relation_type);
+CREATE INDEX idx_on_child_company_id_effective_from_effective_to ON company_relations(child_company_id, effective_from, effective_to);
 ```
 
-### {domain}_categories
+### performance_categories
 
 ```sql
-CREATE TABLE {domain}_categories (
+CREATE TABLE performance_categories (
   id            BIGSERIAL PRIMARY KEY,
   code          VARCHAR NOT NULL UNIQUE,
   name          VARCHAR NOT NULL,
@@ -764,154 +984,360 @@ CREATE TABLE {domain}_categories (
 );
 ```
 
-### {domain}_indicators
+### performance_indicators
 
 ```sql
--- 공통 구조
-CREATE TABLE {domain}_indicators (
+CREATE TABLE performance_indicators (
+  id                     BIGSERIAL PRIMARY KEY,
+  category_id            BIGINT NOT NULL REFERENCES performance_categories(id) ON DELETE RESTRICT,
+  code                   VARCHAR NOT NULL UNIQUE,
+  name                   VARCHAR NOT NULL,
+  unit                   VARCHAR,
+  common                 BOOLEAN DEFAULT false,
+  applicable_to          VARCHAR[] DEFAULT '{}',
+  supported_period_types VARCHAR[] DEFAULT '{}' NOT NULL,
+  formula                TEXT,
+  hierarchy              JSONB DEFAULT '{}',
+  metadata               JSONB DEFAULT '{}',
+  created_at             TIMESTAMP NOT NULL,
+  updated_at             TIMESTAMP NOT NULL
+);
+
+CREATE INDEX index_performance_indicators_on_category_id ON performance_indicators(category_id);
+CREATE UNIQUE INDEX index_performance_indicators_on_code ON performance_indicators(code);
+CREATE INDEX index_performance_indicators_on_common ON performance_indicators(common);
+CREATE INDEX index_performance_indicators_on_applicable_to ON performance_indicators USING gin(applicable_to);
+```
+
+### performance_values
+
+```sql
+CREATE TABLE performance_values (
+  id            BIGSERIAL PRIMARY KEY,
+  company_id    BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  indicator_id  BIGINT NOT NULL REFERENCES performance_indicators(id) ON DELETE CASCADE,
+  year          INTEGER NOT NULL,
+  quarter       INTEGER,
+  value         DECIMAL(20,4),
+  value_text    VARCHAR,
+  basis         VARCHAR(15) NOT NULL DEFAULT 'consolidated',
+  period_type   VARCHAR(10),
+  source_cell   VARCHAR(10),
+  source_sheet  VARCHAR(50),
+  calculated    BOOLEAN DEFAULT false,
+  metadata      JSONB DEFAULT '{}',
+  created_at    TIMESTAMP NOT NULL,
+  updated_at    TIMESTAMP NOT NULL,
+  UNIQUE(company_id, indicator_id, year, quarter, period_type, basis)
+);
+
+CREATE INDEX index_performance_values_on_company_id ON performance_values(company_id);
+CREATE INDEX index_performance_values_on_company_id_and_year_and_quarter ON performance_values(company_id, year, quarter);
+CREATE INDEX index_performance_values_on_indicator_id ON performance_values(indicator_id);
+CREATE INDEX index_performance_values_on_indicator_id_and_year ON performance_values(indicator_id, year);
+CREATE INDEX index_performance_values_on_basis ON performance_values(basis);
+CREATE INDEX index_performance_values_on_period_type ON performance_values(period_type);
+```
+
+### dcm_bond_programs
+
+```sql
+CREATE TABLE dcm_bond_programs (
+  id                 BIGSERIAL PRIMARY KEY,
+  company_id         BIGINT NOT NULL REFERENCES companies(id),
+  established_on     DATE,
+  total_limit_amount DECIMAL(20),
+  created_at         TIMESTAMP NOT NULL,
+  updated_at         TIMESTAMP NOT NULL
+);
+
+CREATE INDEX index_dcm_bond_programs_on_company_id ON dcm_bond_programs(company_id);
+```
+
+### dcm_bond_issues
+
+```sql
+CREATE TABLE dcm_bond_issues (
+  id                       BIGSERIAL PRIMARY KEY,
+  bond_program_id          BIGINT NOT NULL REFERENCES dcm_bond_programs(id),
+  issue_number             VARCHAR NOT NULL,
+  bond_type                VARCHAR,
+  issue_date               DATE,
+  maturity_date            DATE,
+  filing_date              DATE,
+  issue_amount             DECIMAL(20),
+  issue_limit              DECIMAL(20),
+  coupon_rate              DECIMAL(6,4),
+  determined_rate          DECIMAL(6,4),
+  rating                   VARCHAR,
+  demand_amount            DECIMAL(20),
+  subscription_amount      DECIMAL(20),
+  competition_rate         DECIMAL(8,2),
+  rate_band                VARCHAR,
+  target_investors         VARCHAR,
+  underwriting_method      VARCHAR,
+  guaranteed               BOOLEAN DEFAULT false,
+  bond_certificate_issued  BOOLEAN DEFAULT false,
+  pension_participated     BOOLEAN,
+  conglomerate             VARCHAR,
+  issuance_cost_total      DECIMAL(20),
+  issuance_cost_breakdown  JSONB DEFAULT '{}',
+  fund_use                 JSONB DEFAULT '{}',
+  regulatory_impact        JSONB DEFAULT '{}',
+  notes                    TEXT,
+  created_at               TIMESTAMP NOT NULL,
+  updated_at               TIMESTAMP NOT NULL
+);
+
+CREATE INDEX index_dcm_bond_issues_on_bond_program_id ON dcm_bond_issues(bond_program_id);
+CREATE INDEX index_dcm_bond_issues_on_bond_type ON dcm_bond_issues(bond_type);
+CREATE INDEX index_dcm_bond_issues_on_issue_date ON dcm_bond_issues(issue_date);
+CREATE INDEX index_dcm_bond_issues_on_filing_date ON dcm_bond_issues(filing_date);
+CREATE INDEX index_dcm_bond_issues_on_rating ON dcm_bond_issues(rating);
+CREATE INDEX index_dcm_bond_issues_on_issue_number ON dcm_bond_issues(issue_number);
+```
+
+### dcm_underwritings
+
+```sql
+CREATE TABLE dcm_underwritings (
+  id            BIGSERIAL PRIMARY KEY,
+  bond_issue_id BIGINT NOT NULL REFERENCES dcm_bond_issues(id),
+  company_id    BIGINT NOT NULL REFERENCES companies(id),
+  role          VARCHAR NOT NULL,
+  amount        DECIMAL(20),
+  fee_rate      DECIMAL(6,4),
+  fee_amount    DECIMAL(20),
+  task          VARCHAR,
+  created_at    TIMESTAMP NOT NULL,
+  updated_at    TIMESTAMP NOT NULL,
+  UNIQUE(bond_issue_id, company_id)
+);
+
+CREATE INDEX index_dcm_underwritings_on_bond_issue_id ON dcm_underwritings(bond_issue_id);
+CREATE INDEX index_dcm_underwritings_on_company_id ON dcm_underwritings(company_id);
+CREATE INDEX index_dcm_underwritings_on_role ON dcm_underwritings(role);
+```
+
+### retirement_pension_performances
+
+```sql
+CREATE TABLE retirement_pension_performances (
+  id            BIGSERIAL PRIMARY KEY,
+  company_id    BIGINT NOT NULL REFERENCES companies(id),
+  year          INTEGER NOT NULL,
+  quarter       INTEGER NOT NULL,
+  product_type  INTEGER NOT NULL DEFAULT 0,
+  provider_type VARCHAR,
+  db_reserve    DECIMAL(15,2),
+  dc_reserve    DECIMAL(15,2),
+  irp_reserve   DECIMAL(15,2),
+  db_return_1y  DECIMAL(8,4),
+  db_return_3y  DECIMAL(8,4),
+  db_return_5y  DECIMAL(8,4),
+  db_return_7y  DECIMAL(8,4),
+  db_return_10y DECIMAL(8,4),
+  dc_return_1y  DECIMAL(8,4),
+  dc_return_3y  DECIMAL(8,4),
+  dc_return_5y  DECIMAL(8,4),
+  dc_return_7y  DECIMAL(8,4),
+  dc_return_10y DECIMAL(8,4),
+  irp_return_1y  DECIMAL(8,4),
+  irp_return_3y  DECIMAL(8,4),
+  irp_return_5y  DECIMAL(8,4),
+  irp_return_7y  DECIMAL(8,4),
+  irp_return_10y DECIMAL(8,4),
+  synced_at     TIMESTAMP,
+  created_at    TIMESTAMP NOT NULL,
+  updated_at    TIMESTAMP NOT NULL,
+  UNIQUE(company_id, year, quarter, product_type)
+);
+
+CREATE INDEX index_retirement_pension_performances_on_company_id ON retirement_pension_performances(company_id);
+CREATE INDEX index_retirement_pension_performances_on_provider_type ON retirement_pension_performances(provider_type);
+CREATE INDEX index_retirement_pension_performances_on_year_and_quarter ON retirement_pension_performances(year, quarter);
+```
+
+### articles
+
+```sql
+CREATE TABLE articles (
+  id              BIGSERIAL PRIMARY KEY,
+  user_id         BIGINT NOT NULL REFERENCES users(id),
+  article_type    VARCHAR NOT NULL DEFAULT 'league_table',
+  league_type     VARCHAR NOT NULL,
+  category_key    VARCHAR,
+  year            INTEGER NOT NULL,
+  quarter         INTEGER NOT NULL,
+  period_type     VARCHAR DEFAULT 'q',
+  series_name     VARCHAR,
+  title           VARCHAR,
+  subtitle        VARCHAR,
+  body            TEXT,
+  status          VARCHAR NOT NULL DEFAULT 'draft',
+  data_snapshot   TEXT,
+  prompt_snapshot TEXT,
+  metadata        JSONB DEFAULT '{}',
+  published_at    TIMESTAMP,
+  published_by_id BIGINT REFERENCES users(id),
+  created_at      TIMESTAMP NOT NULL,
+  updated_at      TIMESTAMP NOT NULL
+);
+
+CREATE INDEX idx_articles_lookup ON articles(article_type, league_type, year, quarter);
+CREATE INDEX index_articles_on_league_type_and_category_key ON articles(league_type, category_key);
+CREATE INDEX index_articles_on_status ON articles(status);
+CREATE INDEX index_articles_on_published_at ON articles(published_at);
+CREATE INDEX index_articles_on_user_id ON articles(user_id);
+CREATE INDEX index_articles_on_published_by_id ON articles(published_by_id);
+```
+
+### users
+
+```sql
+CREATE TABLE users (
+  id                   BIGSERIAL PRIMARY KEY,
+  email_address        VARCHAR NOT NULL UNIQUE,
+  name                 VARCHAR NOT NULL DEFAULT '',
+  password_digest      VARCHAR NOT NULL,
+  role                 VARCHAR DEFAULT 'reporter',
+  active               BOOLEAN DEFAULT true,
+  must_change_password BOOLEAN NOT NULL DEFAULT true,
+  created_at           TIMESTAMP NOT NULL,
+  updated_at           TIMESTAMP NOT NULL
+);
+
+CREATE UNIQUE INDEX index_users_on_email_address ON users(email_address);
+```
+
+### sessions
+
+```sql
+CREATE TABLE sessions (
   id          BIGSERIAL PRIMARY KEY,
-  category_id BIGINT NOT NULL REFERENCES {domain}_categories(id) ON DELETE RESTRICT,
-  code        VARCHAR NOT NULL UNIQUE,
-  name        VARCHAR NOT NULL,
-  unit        VARCHAR,
-  formula     TEXT,
-  hierarchy   JSONB DEFAULT '{}',
-  metadata    JSONB DEFAULT '{}',
+  user_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  ip_address  VARCHAR,
+  user_agent  VARCHAR,
+  remember_me BOOLEAN NOT NULL DEFAULT false,
   created_at  TIMESTAMP NOT NULL,
   updated_at  TIMESTAMP NOT NULL
 );
 
--- performance_indicators 추가: common BOOLEAN DEFAULT false
--- governance_indicators 추가: data_type INTEGER DEFAULT 0, definition TEXT
+CREATE INDEX index_sessions_on_user_id ON sessions(user_id);
 ```
 
-### {domain}_values
+### ai_token_allocations
 
 ```sql
--- 공통 구조
-CREATE TABLE {domain}_values (
+CREATE TABLE ai_token_allocations (
   id            BIGSERIAL PRIMARY KEY,
-  company_id    BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-  indicator_id  BIGINT NOT NULL REFERENCES {domain}_indicators(id) ON DELETE CASCADE,
-  extraction_id BIGINT REFERENCES extractions(id) ON DELETE SET NULL,
-  year          INTEGER NOT NULL,
-  value         DECIMAL(20,4),
-  value_text    VARCHAR,
-  calculated    BOOLEAN DEFAULT false,
+  user_id       BIGINT NOT NULL REFERENCES users(id),
+  period_start  DATE NOT NULL,
+  monthly_limit INTEGER NOT NULL DEFAULT 500000,
+  used_tokens   INTEGER NOT NULL DEFAULT 0,
+  created_at    TIMESTAMP NOT NULL,
+  updated_at    TIMESTAMP NOT NULL,
+  UNIQUE(user_id, period_start)
+);
+
+CREATE INDEX index_ai_token_allocations_on_user_id ON ai_token_allocations(user_id);
+```
+
+### ai_usage_logs
+
+```sql
+CREATE TABLE ai_usage_logs (
+  id            BIGSERIAL PRIMARY KEY,
+  user_id       BIGINT NOT NULL REFERENCES users(id),
+  query_type    VARCHAR NOT NULL,
+  model         VARCHAR,
+  input_tokens  INTEGER NOT NULL DEFAULT 0,
+  output_tokens INTEGER NOT NULL DEFAULT 0,
+  question      TEXT,
+  success       BOOLEAN NOT NULL DEFAULT true,
   metadata      JSONB DEFAULT '{}',
   created_at    TIMESTAMP NOT NULL,
   updated_at    TIMESTAMP NOT NULL
 );
 
--- performance_values, finance_values 추가: quarter INTEGER
--- UNIQUE(company_id, indicator_id, year, quarter)
-
--- governance_values: quarter 없음
--- UNIQUE(company_id, indicator_id, year)
+CREATE INDEX index_ai_usage_logs_on_user_id ON ai_usage_logs(user_id);
+CREATE INDEX index_ai_usage_logs_on_query_type ON ai_usage_logs(query_type);
+CREATE INDEX index_ai_usage_logs_on_created_at ON ai_usage_logs(created_at);
 ```
 
-### ranking_definitions
+### ingestions
 
 ```sql
-CREATE TABLE ranking_definitions (
-  id             BIGSERIAL PRIMARY KEY,
-  name           VARCHAR NOT NULL,
-  description    TEXT,
-  ranking_type   VARCHAR NOT NULL,
-  indicator_type VARCHAR NOT NULL,
-  indicator_id   BIGINT NOT NULL,
-  scope_type     VARCHAR NOT NULL,
-  sector_id      BIGINT REFERENCES sectors(id),
-  market_type    VARCHAR,
-  sort_direction VARCHAR NOT NULL,
-  filters        JSONB DEFAULT '{}',
-  display_config JSONB DEFAULT '{}',
-  active         BOOLEAN DEFAULT true,
-  created_at     TIMESTAMP NOT NULL,
-  updated_at     TIMESTAMP NOT NULL
-);
-```
-
-### ranking_snapshots
-
-```sql
-CREATE TABLE ranking_snapshots (
-  id                    BIGSERIAL PRIMARY KEY,
-  ranking_definition_id BIGINT NOT NULL REFERENCES ranking_definitions(id) ON DELETE CASCADE,
-  year                  INTEGER NOT NULL,
-  quarter               INTEGER,
-  calculated_at         TIMESTAMP NOT NULL,
-  total_companies       INTEGER,
-  metadata              JSONB DEFAULT '{}',
-  created_at            TIMESTAMP NOT NULL,
-  updated_at            TIMESTAMP NOT NULL,
-  UNIQUE(ranking_definition_id, year, quarter)
-);
-```
-
-### ranking_entries
-
-```sql
-CREATE TABLE ranking_entries (
+CREATE TABLE ingestions (
   id                  BIGSERIAL PRIMARY KEY,
-  ranking_snapshot_id BIGINT NOT NULL REFERENCES ranking_snapshots(id) ON DELETE CASCADE,
-  company_id          BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-  rank                INTEGER NOT NULL,
-  value               DECIMAL(20,4),
-  score               DECIMAL(10,4),
-  grade               VARCHAR,
-  percentile          DECIMAL(5,2),
-  vs_average          DECIMAL(20,4),
-  rank_change         INTEGER,
-  value_change        DECIMAL(20,4),
-  value_change_rate   DECIMAL(10,4),
+  company_id          BIGINT REFERENCES companies(id) ON DELETE CASCADE,
+  year                INTEGER NOT NULL,
+  quarter             INTEGER NOT NULL,
+  source              VARCHAR NOT NULL,
+  sector              VARCHAR NOT NULL,
+  status              VARCHAR NOT NULL,
+  saved_count         INTEGER DEFAULT 0,
+  updated_count       INTEGER DEFAULT 0,
+  total_indicators    INTEGER,
+  source_document_id  VARCHAR,
+  triggered_by        VARCHAR,
+  started_at          TIMESTAMP,
+  completed_at        TIMESTAMP,
+  error_message       TEXT,
+  details             JSONB DEFAULT '{}',
   created_at          TIMESTAMP NOT NULL,
   updated_at          TIMESTAMP NOT NULL,
-  UNIQUE(ranking_snapshot_id, company_id)
+  UNIQUE(company_id, year, quarter, source)
 );
+
+-- company_id IS NULL인 경우의 유니크 제약
+CREATE UNIQUE INDEX idx_ingestions_uniqueness_without_company
+  ON ingestions(year, quarter, source) WHERE (company_id IS NULL);
+
+CREATE INDEX index_ingestions_on_company_id ON ingestions(company_id);
+CREATE INDEX index_ingestions_on_sector_and_year_and_quarter ON ingestions(sector, year, quarter);
+CREATE INDEX index_ingestions_on_year_and_quarter_and_status ON ingestions(year, quarter, status);
 ```
 
-### extraction_runs / extractions
+### feedbacks
 
 ```sql
-CREATE TABLE extraction_runs (
-  id              BIGSERIAL PRIMARY KEY,
-  extraction_type INTEGER NOT NULL DEFAULT 0,
-  source_type     INTEGER NOT NULL DEFAULT 0,
-  triggered_by    INTEGER DEFAULT 0,
-  status          INTEGER NOT NULL DEFAULT 0,
-  total_count     INTEGER DEFAULT 0,
-  success_count   INTEGER DEFAULT 0,
-  failed_count    INTEGER DEFAULT 0,
-  started_at      TIMESTAMP NOT NULL,
-  completed_at    TIMESTAMP,
-  config          JSONB DEFAULT '{}',
-  metadata        JSONB DEFAULT '{}',
-  created_at      TIMESTAMP NOT NULL,
-  updated_at      TIMESTAMP NOT NULL
+CREATE TABLE feedbacks (
+  id                 BIGSERIAL PRIMARY KEY,
+  title              VARCHAR(200) NOT NULL,
+  content            TEXT NOT NULL,
+  nickname           VARCHAR(50),
+  category           VARCHAR NOT NULL,
+  status             VARCHAR NOT NULL DEFAULT 'open',
+  ip_address_hash    VARCHAR NOT NULL,
+  likes_count        INTEGER NOT NULL DEFAULT 0,
+  admin_user_id      BIGINT REFERENCES users(id),
+  admin_response     TEXT,
+  admin_responded_at TIMESTAMP,
+  created_at         TIMESTAMP NOT NULL,
+  updated_at         TIMESTAMP NOT NULL
 );
 
-CREATE TABLE extractions (
-  id                 BIGSERIAL PRIMARY KEY,
-  extraction_run_id  BIGINT REFERENCES extraction_runs(id) ON DELETE SET NULL,
-  company_id         BIGINT REFERENCES companies(id) ON DELETE CASCADE,
-  extraction_type    INTEGER NOT NULL DEFAULT 0,
-  source_type        INTEGER NOT NULL DEFAULT 0,
-  source_document_id VARCHAR NOT NULL,
-  source_url         VARCHAR,
-  status             INTEGER NOT NULL DEFAULT 0,
-  retry_count        INTEGER DEFAULT 0,
-  started_at         TIMESTAMP,
-  completed_at       TIMESTAMP,
-  duration_ms        INTEGER,
-  error_message      TEXT,
-  error_details      JSONB DEFAULT '{}',
-  extracted_summary  JSONB DEFAULT '{}',
-  metadata           JSONB DEFAULT '{}',
-  created_at         TIMESTAMP NOT NULL,
-  updated_at         TIMESTAMP NOT NULL,
-  UNIQUE(source_document_id, source_type, extraction_type)
+CREATE INDEX index_feedbacks_on_category ON feedbacks(category);
+CREATE INDEX index_feedbacks_on_status ON feedbacks(status);
+CREATE INDEX index_feedbacks_on_created_at ON feedbacks(created_at);
+CREATE INDEX index_feedbacks_on_likes_count ON feedbacks(likes_count);
+CREATE INDEX index_feedbacks_on_admin_user_id ON feedbacks(admin_user_id);
+```
+
+### feedback_likes
+
+```sql
+CREATE TABLE feedback_likes (
+  id              BIGSERIAL PRIMARY KEY,
+  feedback_id     BIGINT NOT NULL REFERENCES feedbacks(id) ON DELETE CASCADE,
+  ip_address_hash VARCHAR NOT NULL,
+  created_at      TIMESTAMP NOT NULL,
+  updated_at      TIMESTAMP NOT NULL,
+  UNIQUE(feedback_id, ip_address_hash)
 );
+
+CREATE INDEX index_feedback_likes_on_feedback_id ON feedback_likes(feedback_id);
 ```
 
 ---
@@ -922,11 +1348,9 @@ CREATE TABLE extractions (
 
 Rails 컨벤션(bigint auto-increment PK)을 따르면서, dart_code에 UNIQUE 인덱스를 걸어 사실상 자연키 역할 수행. 외래키 관계에서 bigint가 더 효율적.
 
-### 3개 도메인을 분리한 이유
+### Performance 도메인만 구현된 이유
 
-- 도메인별로 약간씩 다른 컬럼 존재 (governance의 data_type 등)
-- 분리하면 각 도메인 독립적으로 확장 가능
-- 쿼리 성능 면에서 특정 도메인만 조회할 때 유리
+초기 설계에서 경영성과(Performance), 지배구조(Governance), 재무지표(Finance) 3개 도메인을 동일한 카테고리-지표-값 패턴으로 설계했으나, 현재는 Performance만 구현되어 있다. Governance와 Finance는 DB 테이블이 존재하지 않으며, 필요 시 같은 패턴으로 추가 가능.
 
 ### JSONB 컬럼 사용 기준
 
@@ -934,6 +1358,6 @@ Rails 컨벤션(bigint auto-increment PK)을 따르면서, dart_code에 UNIQUE �
 
 ---
 
-**작성일**: 2025-11-27
-**버전**: 3.1
-**스키마 버전**: 2025_11_25_024156
+**작성일**: 2026-02-26
+**버전**: 4.0
+**스키마 버전**: 2026_02_20_025743
