@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SNU AI Summit 2026</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans/css/SpoqaHanSansNeo.css" />
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+      @font-face {
+        font-family: 'SebangGothic';
+        src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2104@1.0/SEBANG_Gothic_Regular.woff') format('woff');
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'SebangGothic';
+        src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2104@1.0/SEBANG_Gothic_Bold.woff') format('woff');
+        font-weight: 700;
+        font-display: swap;
+      }
+    </style>
+  </head>
+  <body>
+
+
+
+
+<style>
+  /* ===== Base ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; color: #333; line-height: 1.6; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+
+  /* ===== Top Navigation ===== */
+  .top-nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 32px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .top-nav-logo {
+    flex-shrink: 0;
+  }
+  .top-nav-logo img {
+    height: 100px;
+    width: auto;
+  }
+  .top-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+    padding-left: 180px;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.8);
+  }
+  .top-nav-links a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 21px;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: -0.5px;
+    transition: opacity 0.2s;
+  }
+  .top-nav-links a:hover { opacity: 0.7; }
+  .top-nav-links a.nav-highlight {
+    color: #38b6ff;
+  }
+  .nav-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 300 !important;
+  }
+
+  /* ===== Hero Section ===== */
+  .hero {
+    position: relative;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+    height: 88vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px 60px;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-title-img {
+    width: 840px;
+    height: auto;
+    margin-bottom: 12px;
+  }
+  .hero-date {
+    font-size: 30px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .hero-venue {
+    font-size: 24px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 64px;
+  }
+  .hero-organizer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    justify-content: center;
+    bottom: 92px;
+    z-index: 2;
+    display: flex;
+    gap: 40px;
+    font-size: 30px;
+    color: #38b6ff;
+  }
+  .hero-organizer strong {
+    color: #fff;
+    font-weight: 600;
+  }
+  .hero-spinner {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    filter: brightness(0) invert(1);
+  }
+  .hero-spinner-left {
+    left: calc((100% - 1400px) / 2 + 60px);
+    left: 40px;
+    top: 400px;
+    width: 360px;
+    height: auto;
+    opacity: 0.6;
+    animation: spinLeft 30s linear infinite;
+    margin-left: -40px;
+  }
+  .hero-spinner-right {
+    right: calc((100% - 1400px) / 2 + 60px);
+    right: 40px;
+    top: 320px;
+    width: 260px;
+    height: auto;
+    animation: spinRight 30s linear infinite;
+    margin-right: -40px;
+  }
+  @keyframes spinLeft {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+  }
+  @keyframes spinRight {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .btn-register {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 52px;
+    background: #ff5757;
+    color: #fff;
+    font-size: 42px;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-register:hover {
+    background: #e04040;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 87, 87, 0.4);
+  }
+  .btn-register-chevron {
+    margin-left: 36px;
+  }
+
+  /* ===== Speakers Section ===== */
+  .speakers-section {
+    position: relative;
+    background-color: #0a1a3a;
+    background-image: url('images/speakers_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 60px 40px;
+  }
+  .speakers-section .section-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .section-title {
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: -0.5px;
+  }
+  .speakers-section .section-title {
+    color: #fff;
+    font-size: 48px;
+    margin-bottom: 48px;
+  }
+  .speaker-group-label {
+    font-size: 32px;
+    font-weight: 700;
+    color: #38b6ff;
+    text-align: left;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+  .speakers-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .speaker-card {
+    text-align: center;
+    width: 200px;
+  }
+  .speaker-photo {
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 10px;
+    background: #b0c4de;
+    display: block;
+  }
+  .speakers-row--keynote .speaker-photo {
+    width: 280px;
+    height: 280px;
+  }
+  .speakers-row--keynote .speaker-card {
+    width: 280px;
+  }
+  .speakers-row--main .speaker-photo {
+    width: 140px;
+    height: 140px;
+  }
+  .speakers-row--main .speaker-card {
+    width: 160px;
+  }
+  .speakers-row--main .speaker-name {
+    font-size: 20px;
+  }
+  .speakers-row--main .speaker-role {
+    font-size: 14px;
+    font-weight: 300;
+  }
+  .speaker-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .speaker-role {
+    font-size: 17px;
+    font-weight: 300;
+    color: #fff;
+    line-height: 1.5;
+  }
+  .speaker-photo-default {
+    animation: spinRight 30s linear infinite;
+    background: transparent;
+    opacity: 0.3;
+  }
+
+  /* ===== Program Section ===== */
+  .program-section {
+    background-image: url('images/section_3_bg.jpg');
+    background-size: 100% auto;
+    background-position: center -200px;
+    background-repeat: no-repeat;
+    padding: 60px 40px;
+    background-color: rgb(222, 233, 248);
+    position: relative;
+    overflow: hidden;
+  }
+  .program-section .section-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .program-section .section-title {
+    color: #000;
+    font-size: 48px;
+    margin-bottom: 40px;
+  }
+  .session-tabs {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 80px;
+  }
+  .session-tab {
+    flex: 1;
+    text-align: left;
+    padding: 14px 0 0 8px;
+    font-size: 24px;
+    font-weight: 500;
+    color: rgb(166, 166, 166);
+    cursor: pointer;
+    border-bottom: 3px solid rgb(166, 166, 166);
+    margin-bottom: -2px;
+    transition: border-color 0.2s, opacity 0.2s;
+    text-decoration: none;
+  }
+  .session-tab.session-first {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+  .session-tab.active {
+    color: #004aad;
+    border-bottom-color: #004aad;
+    border-bottom-width: 8px;
+    opacity: 1;
+  }
+  .session-tab:hover { opacity: 0.7; }
+  .session-topic {
+    background: #ff5757;
+    color: #fff;
+    text-align: center;
+    font-size: 47px;
+    font-weight: 600;
+    padding: 6px 38px;
+    margin: 0 auto 32px;
+    width: fit-content;
+    letter-spacing: -1px;
+    border-radius: 12px;
+  }
+  .program-topic {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 600;
+    color: #004aad;
+    margin-bottom: 72px;
+    letter-spacing: -1px;
+    line-height: 1.5;
+  }
+  .session-panel {
+    display: block;
+    margin-bottom: 92px;
+  }
+  .mid-spinner {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.3;
+    z-index: 0;
+  }
+  .mid-spinner-right {
+    right: 0;
+    bottom: 680px;
+    width: 360px;
+    animation: spinRight 30s linear infinite;
+  }
+  .mid-spinner-left {
+    left: 0;
+    bottom: 100px;
+    width: 360px;
+    animation: spinLeft 30s linear infinite;
+  }
+  .program-table {
+    width: 100%;
+    font-size: 16px;
+    border-top: 6px solid rgb(0, 74, 173);
+    border-collapse: collapse;
+  }
+  #session-2 .program-table,
+  #session-3 .program-table {
+    border-top: 2px solid rgb(166, 166, 166);
+  }
+  .program-table td {
+    padding: 4px 16px;
+    color: #333;
+    vertical-align: top;
+    border-bottom: 2px solid rgb(166, 166, 166);
+  }
+  .program-table .time-col {
+    white-space: nowrap;
+    color: #545454;
+    width: 150px;
+    font-weight: 500;
+    font-size: 16px;
+    padding-top: 8px;
+  }
+  .program-table .content-col {
+    color: #1a1a2e;
+    font-weight: 600;
+    width: 200px;
+    font-size: 20px;
+  }
+  .program-table .speaker-col {
+    color: #545454;
+    font-size: 19px;
+  }
+  .program-table .name {
+    color: #1a1a2e;
+    font-weight: 500;
+  }
+  .program-table .no-border td {
+    border-bottom: none;
+  }
+  .program-table .label-chair {
+    color: #004aad;
+    font-weight: 600;
+    float: left;
+    margin-left: -60px;
+    width: 50px;
+  }
+  .program-table .group-end td {
+    border-bottom: 2px solid rgb(166, 166, 166);
+  }
+  .program-table .speaker-row td {
+    border-bottom: 2px dotted rgb(180, 180, 180);
+  }
+  .program-table .speaker-row td[rowspan] {
+    border-bottom: 2px solid rgb(166, 166, 166);
+  }
+  .program-table .topic-row td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    color: #004aad;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .program-table .topic-row-dark td {
+    padding-top: 12px;
+    padding-bottom: 4px;
+    color: #000;
+    font-weight: 700;
+    font-size: 20px;
+    border-bottom: none;
+    line-height: 1.2;
+  }
+  .program-table .break-row td {
+    border-bottom: 2px solid rgb(166, 166, 166);
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    background: rgba(0, 74, 173, 0.04);
+  }
+
+  /* ===== AI Fair Section ===== */
+  .fair-section {
+    background: #004aad;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .fair-spinner {
+    position: absolute;
+    right: -40px;
+    bottom: -150px;
+    width: 400px;
+    pointer-events: none;
+    opacity: 0.15;
+    animation: spinRight 30s linear infinite;
+  }
+  .fair-section .section-title {
+    color: #fff;
+    font-size: 48px;
+    margin-bottom: 32px;
+  }
+  .fair-section .section-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .fair-category {
+    display: block;
+    background: #000;
+    color: #fff;
+    font-size: 30px;
+    font-weight: 600;
+    padding: 8px 40px;
+    margin: 0 auto 60px;
+    width: fit-content;
+    text-align: center;
+  }
+  .fair-logos-row {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-bottom: 48px;
+  }
+  .fair-card {
+    width: 280px;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .fair-card-logo {
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .fair-card-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .fair-card-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .fair-card-rep {
+    font-size: 16px;
+    color: #fff;
+  }
+  .fair-card-dept {
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .fair-card-desc {
+    font-size: 18px;
+    color: #38b6ff;
+    line-height: 1.5;
+  }
+
+  /* ===== AI Event Section ===== */
+  .event-section {
+    position: relative;
+    overflow: hidden;
+    padding: 60px 40px 240px;
+    color: #fff;
+  }
+  .event-section .hero-bg {
+    z-index: 0;
+  }
+  .event-section .section-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .event-section .section-title {
+    color: #fff;
+    font-size: 48px;
+    margin-bottom: 92px;
+  }
+  .event-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 76px;
+  }
+  .event-card {
+    flex: 1;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    overflow: hidden;
+    text-align: center;
+  }
+  .event-card-header {
+    background: #06134b;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+  }
+  .event-card-title {
+    font-size: 40px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -1px;
+  }
+  .event-card-subtitle {
+    font-size: 24px;
+    color: #fff;
+    margin-top: 4px;
+    display: block;
+  }
+  .event-card-content {
+    background: #fff;
+    padding: 24px;
+  }
+  .event-card-content--split {
+    display: flex;
+    padding: 0;
+  }
+  .event-card-body {
+    font-size: 32px;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.4;
+    height: 160px;
+  }
+  .event-card-body--auto {
+    height: auto;
+  }
+  .event-journey-col {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .event-journey-col--left {
+    position: relative;
+  }
+  .event-journey-divider {
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    border-right: 2px solid #000;
+  }
+  .event-journey-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+
+  /* ===== Footer ===== */
+  .summit-footer {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 56px 14px 8px;
+  }
+  .footer-organizer {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-bottom: 20px;
+    font-size: 29px;
+    color: #38b6ff;
+  }
+  .footer-organizer .label {
+    color: #38b6ff;
+  }
+  .footer-organizer strong {
+    color: #fff;
+    font-weight: 700;
+  }
+  .footer-logo {
+    margin-bottom: 52px;
+  }
+  .footer-logo img {
+    height: 120px;
+    width: auto;
+    margin: 0 auto;
+  }
+  .footer-bottom {
+    display: flex;
+    justify-content: flex-start;
+    gap: 24px;
+  }
+  .footer-bottom a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  /* ===== Tablet (≤1024px) ===== */
+  @media (max-width: 1024px) {
+    .top-nav { padding: 16px 24px; gap: 24px; }
+    .top-nav-logo img { height: 64px; }
+    .top-nav-links { gap: 20px; padding-left: 40px; }
+    .top-nav-links a { font-size: 15px; }
+
+    .hero { height: 80vh; padding: 0 24px 40px; }
+    .hero-title-img { width: 520px; }
+    .hero-date { font-size: 24px; }
+    .hero-venue { font-size: 18px; margin-bottom: 40px; }
+    .btn-register { font-size: 28px !important; padding: 8px 44px; }
+    .hero-organizer { font-size: 18px; gap: 20px; bottom: 60px; }
+    .hero-spinner-left { width: 200px; }
+    .hero-spinner-right { width: 180px; }
+
+    .speakers-section .section-title { font-size: 28px; }
+    .speaker-group-label { font-size: 18px; }
+    .speakers-row--keynote .speaker-photo { width: 120px; height: 120px; }
+    .speakers-row--keynote .speaker-card { width: 140px; }
+    .speakers-row--main .speaker-photo { width: 90px; height: 90px; }
+    .speakers-row--main .speaker-card { width: 110px; }
+
+    .program-section .section-title { font-size: 28px; }
+    .session-tab { font-size: 16px; }
+    .session-topic { font-size: 32px; }
+    .program-topic { font-size: 28px; }
+    .session-tabs { margin-bottom: 48px; }
+    .session-panel { margin-bottom: 48px; }
+    .program-table .content-col { font-size: 16px; width: 120px; }
+    .program-table .speaker-col { font-size: 15px; }
+    .program-table .topic-row td,
+    .program-table .topic-row-dark td { font-size: 16px; }
+    .program-table .label-chair { margin-left: -50px; width: 42px; font-size: 14px; }
+    .mid-spinner { width: 240px !important; }
+
+    .fair-section .section-title { font-size: 32px; }
+    .fair-category { font-size: 24px; }
+    .fair-logos-row { gap: 32px; }
+    .fair-card { width: 200px; }
+    .fair-card-logo { height: 130px; overflow: hidden; }
+    .fair-card-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .fair-card-name { font-size: 22px; }
+    .fair-card-rep { font-size: 14px; }
+    .fair-card-dept { font-size: 14px; }
+    .fair-card-desc { font-size: 15px; }
+    .fair-spinner { width: 300px; }
+
+    .event-section { padding: 60px 32px 200px; }
+    .event-section .section-title { font-size: 32px; margin-bottom: 60px; }
+    .event-card-header { height: 100px; }
+    .event-card-title { font-size: 18px; }
+    .event-card-body { font-size: 15px; }
+
+    .summit-footer { padding: 48px 32px 24px; }
+    .footer-organizer { font-size: 22px; gap: 32px; }
+    .footer-logo img { height: 90px; }
+  }
+
+  /* ===== Mobile (≤768px) ===== */
+  @media (max-width: 768px) {
+    .top-nav {
+      padding: 16px 20px;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .top-nav-logo img { height: 56px; }
+    .top-nav-links { gap: 16px; flex-wrap: wrap; justify-content: center; border-bottom: none; padding-left: 0; padding-bottom: 0; }
+    .top-nav-links a { font-size: 14px; font-weight: 600; }
+
+    .hero { height: auto; min-height: 100vh; padding: 24px 20px 80px; }
+    .hero-title-img { width: 80vw; max-width: 400px; margin-bottom: 20px; }
+    .hero-date { font-size: 18px; margin-bottom: 4px; }
+    .hero-venue { font-size: 14px; margin-bottom: 32px; }
+    .btn-register { font-size: 20px !important; padding: 6px 28px; }
+    .btn-register svg { width: 10px; height: 16px; margin-left: 20px !important; }
+    .hero-organizer { position: absolute; bottom: 24px; font-size: 12px; gap: 8px; flex-direction: column; align-items: center; }
+    .hero-spinner { display: none; }
+
+    .speakers-section { padding: 48px 20px; }
+    .speakers-section .section-title { font-size: 24px; margin-bottom: 32px; }
+    .speaker-group-label { font-size: 16px; margin-bottom: 16px; }
+    .speakers-row { gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .speakers-row--keynote .speaker-photo { width: 80px; height: 80px; }
+    .speakers-row--keynote .speaker-card { width: 100px; }
+    .speakers-row--main .speaker-photo { width: 70px; height: 70px; }
+    .speakers-row--main .speaker-card { width: 90px; }
+    .speaker-name { font-size: 13px; }
+    .speaker-role { font-size: 11px; }
+
+    .program-section { padding: 32px 16px; }
+    .program-section .section-title { font-size: 24px; margin-bottom: 24px; }
+    .session-tab { font-size: 13px; padding: 10px 0; }
+    .session-topic { font-size: 20px; padding: 8px 16px; border-radius: 8px; }
+    .program-topic { font-size: 18px; margin-bottom: 20px; }
+    .session-tabs { margin-bottom: 24px; }
+    .session-panel { margin-bottom: 32px; }
+    .program-table { font-size: 12px; }
+    .program-table td { padding: 6px 8px; }
+    .program-table .time-col { width: 80px; font-size: 12px; }
+    .program-table .content-col { width: 80px; font-size: 13px; }
+    .program-table .speaker-col { font-size: 13px; }
+    .program-table .topic-row td,
+    .program-table .topic-row-dark td { font-size: 14px; padding-top: 8px; padding-bottom: 4px; }
+    .program-table .label-chair { float: none; margin-left: 0; width: auto; display: inline; margin-right: 4px; font-size: 12px; }
+    .program-table .name { font-size: 13px; }
+    .mid-spinner { display: none; }
+
+    .register-section { padding: 48px 20px; }
+    .register-section .section-title { font-size: 24px; margin-bottom: 24px; }
+    .register-layout { flex-direction: column; gap: 0; }
+
+    .fair-section { padding: 40px 16px; }
+    .fair-section .section-title { font-size: 24px; margin-bottom: 24px; }
+    .fair-category { font-size: 16px; margin-bottom: 16px; padding: 6px 20px; font-size: 14px; }
+    .fair-logos-row { flex-direction: column; align-items: center; gap: 36px; margin-bottom: 36px; }
+    .fair-card { width: 100%; max-width: 280px; text-align: center; }
+    .fair-card-logo { height: 160px; overflow: hidden; }
+    .fair-card-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .fair-card-name { font-size: 18px; }
+    .fair-card-rep { font-size: 13px; }
+    .fair-card-dept { font-size: 13px; }
+    .fair-card-desc { font-size: 14px; }
+    .fair-spinner { display: none; }
+
+    .event-section { padding: 48px 16px 120px; }
+    .event-section .section-title { font-size: 24px; margin-bottom: 36px; }
+    .event-row { flex-direction: column; gap: 16px; margin-bottom: 40px; }
+    .event-card-header { height: 60px; padding: 12px 16px; }
+    .event-card-title { font-size: 15px; letter-spacing: 0; }
+    .event-card-subtitle { font-size: 10px; }
+    .event-card-content { padding: 16px; }
+    .event-card-body { font-size: 14px; height: auto; padding: 0; }
+    .event-journey-col { padding: 16px; }
+
+    .summit-footer { padding: 40px 20px 16px; }
+    .footer-organizer { flex-direction: column; gap: 8px; font-size: 16px; margin-bottom: 24px; }
+    .footer-logo { margin-bottom: 24px; }
+    .footer-logo img { height: 60px; }
+    .footer-bottom { gap: 16px; }
+    .footer-bottom a { font-size: 11px; }
+  }
+</style>
+
+<!-- ===== TOP NAVIGATION ===== -->
+<nav class="top-nav">
+  <div class="top-nav-logo">
+    <img src="images/logo_snu.png" alt="서울대학교">
+  </div>
+  <div class="top-nav-links">
+    <a href="#program">Program</a>
+    <a href="#speakers">Speakers</a>
+    <a href="#register">Register</a>
+    <a href="#fair" class="nav-highlight">AI Fair</a>
+    <a href="#" class="nav-lang">ENGLISH <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+</nav>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero">
+  <video class="hero-bg" autoplay muted loop playsinline>
+    <source src="images/hero_bg_video.mp4" type="video/mp4">
+  </video>
+  <img src="images/left_spinner.png" class="hero-spinner hero-spinner-left" alt="">
+  <img src="images/right_spinner.png" class="hero-spinner hero-spinner-right" alt="">
+
+  <div class="hero-content">
+    <img src="images/hero_title.png" class="hero-title-img" alt="서울대학교 AI SUMMIT 2026">
+
+    <p class="hero-date">2026. 4. 2.(목) 09:00~17:00</p>
+    <p class="hero-venue">서울대학교 GECE(38동) 5층</p>
+
+    <a href="#register" class="btn-register">사전등록 <svg class="btn-register-chevron" width="16" height="26" viewBox="0 0 8 14" fill="none"><path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+
+  </div>
+
+  <div class="hero-organizer">
+    <span>주최 |&nbsp;&nbsp; <strong>서울대학교</strong></span>
+    <span>주관 |&nbsp;&nbsp;  <strong>서울대학교 정보화본부·AI연구원</strong></span>
+  </div>
+</section>
+
+<!-- ===== SPEAKERS SECTION ===== -->
+<section class="speakers-section" id="speakers">
+  <div class="section-inner">
+    <h2 class="section-title">Speakers</h2>
+
+    <!-- Keynote Speech (3명) -->
+    <p class="speaker-group-label">Keynote Speech</p>
+    <div class="speakers-row speakers-row--keynote">
+      <div class="speaker-card">
+        <img src="images/speaker_keynote_1.jpg" class="speaker-photo" alt="Deeps De Silva">
+        <p class="speaker-name">Deeps De Silva</p>
+        <p class="speaker-role">Head of OpenAI for<br>Education, OpenAI</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_keynote_4.jpg" class="speaker-photo" alt="김유원">
+        <p class="speaker-name">김 유 원</p>
+        <p class="speaker-role">네이버클라우드<br>대표이사</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_keynote_2.jpg" class="speaker-photo" alt="유현경">
+        <p class="speaker-name">유 현 경</p>
+        <p class="speaker-role">한국마이크로소프트<br>부사장</p>
+      </div>
+    </div>
+
+    <!-- Main Presentation (5명 + 5명) -->
+    <p class="speaker-group-label">Main Presentation</p>
+    <div class="speakers-row speakers-row--main">
+      <div class="speaker-card">
+        <img src="images/speaker_main_1.jpg" class="speaker-photo" alt="곽노준">
+        <p class="speaker-name">곽 노 준</p>
+        <p class="speaker-role">서울대학교 AI연구원<br>연구부원장</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_2.jpg" class="speaker-photo" alt="이경무">
+        <p class="speaker-name">이 경 무</p>
+        <p class="speaker-role">서울대학교 공과대학<br>특임석좌교수</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_3.jpg" class="speaker-photo" alt="이재욱">
+        <p class="speaker-name">이 재 욱</p>
+        <p class="speaker-role">서울대학교 AI연구원<br>원장</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_4.jpg" class="speaker-photo" alt="조규진">
+        <p class="speaker-name">조 규 진</p>
+        <p class="speaker-role">서울대학교 로보틱스연구소<br>소장</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_5.jpg" class="speaker-photo" alt="조영환">
+        <p class="speaker-name">조 영 환</p>
+        <p class="speaker-role">서울대학교 학습과학연구소<br>소장</p>
+      </div>
+    </div>
+    <div class="speakers-row speakers-row--main">
+      <div class="speaker-card">
+        <img src="images/speaker_main_6.jpg" class="speaker-photo" alt="박진호">
+        <p class="speaker-name">박 진 호</p>
+        <p class="speaker-role">서울대학교 AI연구원<br>기획부원장</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_7.jpg" class="speaker-photo" alt="백민경">
+        <p class="speaker-name">백 민 경</p>
+        <p class="speaker-role">서울대학교 자연과학대학<br>생명과학부 교수</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_8.jpg" class="speaker-photo" alt="임용">
+        <p class="speaker-name">임 용</p>
+        <p class="speaker-role">서울대학교 법학전문대학원<br>교수</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_main_9.jpg" class="speaker-photo" alt="이형철">
+        <p class="speaker-name">이 형 철</p>
+        <p class="speaker-role">서울대학교 공과대학<br>컴퓨터공학부 교수</p>
+      </div>
+      <div class="speaker-card">
+        <img src="images/speaker_default.png" class="speaker-photo speaker-photo-default" alt="">
+        <p class="speaker-name"></p>
+        <p class="speaker-role"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROGRAM SECTION ===== -->
+<section class="program-section" id="program">
+  <div class="section-inner">
+    <h2 class="section-title">Program</h2>
+
+    <!-- Session 1 -->
+    <div class="session-panel" id="session-1" data-session="1">
+      <div class="session-tabs">
+        <a class="session-tab active" href="#session-1">Session 1</a>
+        <a class="session-tab session-first" href="#session-2">Session 2</a>
+        <a class="session-tab session-first" href="#session-3">Session 3</a>
+      </div>
+      <div class="session-topic">서울대학교 AI Native Campus 비전 발표</div>
+      <div class="program-topic">AI기술, Agent 다음은 무엇인가? AI 기술로 바뀌는 미래</div>
+      <table class="program-table">
+        <tbody>
+          <tr class="group-end">
+            <td class="time-col">09:00-09:30</td>
+            <td class="content-col">등록</td>
+            <td class="speaker-col">참석자 등록</td>
+          </tr>
+          <tr>
+            <td class="time-col" rowspan="7">09:30-12:30</td>
+            <td class="content-col">환영사</td>
+            <td class="speaker-col"><span class="name">유홍림</span>&nbsp;&nbsp;서울대학교 총장</td>
+          </tr>
+          <tr>
+            <td class="content-col">축사</td>
+            <td class="speaker-col"></td>
+          </tr>
+          <tr class="topic-row">
+            <td colspan="2">서울대학교 AI Native Campus 비전 발표</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="content-col" rowspan="3">기조연설</td>
+            <td class="speaker-col"><span class="name">Deeps De Silva</span>&nbsp;&nbsp;Head of OpenAI for Education, OpenAI</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="speaker-col"><span class="name">김유원</span>&nbsp;&nbsp;네이버클라우드 대표이사</td>
+          </tr>
+          <tr>
+            <td class="speaker-col"><span class="name">유현경</span>&nbsp;&nbsp;한국마이크로소프트 부사장</td>
+          </tr>
+          <tr class="group-end">
+            <td class="content-col">토론 및 Q&A</td>
+            <td class="speaker-col"></td>
+          </tr>
+          <tr class="group-end">
+            <td class="time-col">12:30-13:30</td>
+            <td class="content-col">점심식사</td>
+            <td class="speaker-col"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Session 2 -->
+    <div class="session-panel" id="session-2" data-session="2">
+      <div class="session-tabs">
+        <a class="session-tab" href="#session-1">Session 1</a>
+        <a class="session-tab active" href="#session-2">Session 2</a>
+        <a class="session-tab" href="#session-3">Session 3</a>
+      </div>
+      <table class="program-table">
+        <tbody>
+          <tr class="speaker-row">
+            <td class="time-col" rowspan="9">13:30-14:30</td>
+            <td class="content-col" rowspan="9">연사발표</td>
+            <td class="speaker-col"><span class="label-chair">좌장</span><span class="name">곽노준</span>&nbsp;&nbsp;서울대학교 AI연구원 연구부원장</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>서울대학교 AI 대학원 교육의 목표와 발전방향</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="speaker-col"><span class="name">이경무</span>&nbsp;&nbsp;서울대학교 공과대학 특임석좌교수</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>모두를 위한 AI (AI for All): AI연구원의 현황과 미래</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="speaker-col"><span class="name">이재욱</span>&nbsp;&nbsp;서울대학교 AI연구원 원장</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>AI 응용(Physical/Robotics/Medicine)</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="speaker-col"><span class="name">조규진</span>&nbsp;&nbsp;서울대학교 로보틱스연구소장</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>AI 시대 대학교육의 미래: 교수와 학생의 인식과 발전 과제</td>
+          </tr>
+          <tr class="group-end">
+            <td class="speaker-col"><span class="name">조영환</span>&nbsp;&nbsp;서울대학교 학술과정연구소장</td>
+          </tr>
+          <tr class="group-end">
+            <td class="time-col">14:30-14:40</td>
+            <td class="content-col">휴식시간</td>
+            <td class="speaker-col"></td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="time-col" rowspan="7">14:40-15:35</td>
+            <td class="content-col" rowspan="7">패널토의</td>
+            <td class="speaker-col"><span class="label-chair">좌장</span><span class="name">조영환</span>&nbsp;&nbsp;서울대학교 학술과정연구소</td>
+          </tr>
+          <tr class="no-border">
+            <td class="speaker-col"><span class="name">이경무</span>&nbsp;&nbsp;서울대학교 공과대학 특임석좌교수</td>
+          </tr>
+          <tr class="no-border">
+            <td class="speaker-col"><span class="name">이재욱</span>&nbsp;&nbsp;서울대학교 AI연구원 원장</td>
+          </tr>
+          <tr class="no-border">
+            <td class="speaker-col"><span class="name">조규진</span>&nbsp;&nbsp;서울대학교 로보틱스연구소장</td>
+          </tr>
+          <tr class="no-border">
+            <td class="speaker-col"><span class="name">백민경</span>&nbsp;&nbsp;서울대학교 자연과학대학 생과학부 교수</td>
+          </tr>
+          <tr class="no-border">
+            <td class="speaker-col"><span class="name">임용</span>&nbsp;&nbsp;서울대학교 대학원지능연구센터</td>
+          </tr>
+          <tr class="group-end">
+            <td class="speaker-col"><span class="name">이형철</span>&nbsp;&nbsp;서울대병원 헬스케어AI 연구원 부원장</td>
+          </tr>
+          <tr class="group-end">
+            <td class="time-col">15:35-15:45</td>
+            <td class="content-col">휴식시간</td>
+            <td class="speaker-col"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Session 3 -->
+    <div class="session-panel" id="session-3" data-session="3">
+      <div class="session-tabs">
+        <a class="session-tab" href="#session-1">Session 1</a>
+        <a class="session-tab" href="#session-2">Session 2</a>
+        <a class="session-tab active" href="#session-3">Session 3</a>
+      </div>
+      <table class="program-table">
+        <tbody>
+          <tr class="speaker-row">
+            <td class="time-col" rowspan="7">15:45-16:30</td>
+            <td class="content-col" rowspan="7">연사발표</td>
+            <td class="speaker-col"><span class="label-chair">좌장</span><span class="name">박진호</span>&nbsp;&nbsp;서울대학교 AI연구원 기획부원장</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>Beyond the Natural Blueprint: Reprogramming Protein Interactions with AI</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="speaker-col"><span class="name">백민경</span>&nbsp;&nbsp;서울대학교 자연과학대학 생명과학부 교수</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>AI와 노동의 미래: 뉴딜의 요청</td>
+          </tr>
+          <tr class="speaker-row">
+            <td class="speaker-col"><span class="name">임 용</span>&nbsp;&nbsp;서울대학교 법학전문대학원 교수</td>
+          </tr>
+          <tr class="topic-row-dark">
+            <td>헬스 AI</td>
+          </tr>
+          <tr class="group-end">
+            <td class="speaker-col"><span class="name">이형철</span>&nbsp;&nbsp;서울대병원 헬스케어AI 연구원 부원장</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <img src="images/mid_spinner_right.png" class="mid-spinner mid-spinner-right" alt="">
+  <img src="images/mid_spinner_left.png" class="mid-spinner mid-spinner-left" alt="">
+</section>
+
+<!-- ===== AI FAIR SECTION ===== -->
+<section class="fair-section" id="fair">
+  <div class="section-inner">
+    <h2 class="section-title">AI Fair</h2>
+
+    <!-- 학생 창업 기업 -->
+    <div class="fair-category">서울대학교 학생 창업 기업</div>
+    <div class="fair-logos-row">
+      <div class="fair-card">
+        <a href="https://studytapa.com/" target="_blank" class="fair-card-logo">
+          <img src="images/fair_1.jpg" alt="스터디타파">
+        </a>
+        <p class="fair-card-name">(주)이루리랩스</p>
+        <p class="fair-card-rep">김대유</p>
+        <p class="fair-card-dept">서울대 학부대학 자유전공학부</p>
+        <p class="fair-card-desc">AI 혁신적인 문서 분석자의 RAG 기반 교육시스템 전문 응용</p>
+      </div>
+      <div class="fair-card">
+        <a href="https://www.nanumnavi.com/ko" target="_blank" class="fair-card-logo">
+          <img src="images/fair_2.jpg" alt="나눔비타민">
+        </a>
+        <p class="fair-card-name">(주) 나눔비타민</p>
+        <p class="fair-card-rep">김하연</p>
+        <p class="fair-card-dept">서울대 학부대학 자유전공학부</p>
+        <p class="fair-card-desc">AI 맞춤형 기부, 복지 플랫폼 전문기업</p>
+      </div>
+      <div class="fair-card">
+        <div class="fair-card-logo">
+          <img src="images/fair_3.jpg" alt="피놀로지">
+        </div>
+        <p class="fair-card-name">(주)피놀로지</p>
+        <p class="fair-card-rep">전우재</p>
+        <p class="fair-card-dept">서울대 공과대학 컴퓨터공학과</p>
+        <p class="fair-card-desc">AI 에이전트 기반 대화형 투자 플랫폼</p>
+      </div>
+    </div>
+
+    <!-- 교원 창업 기업 -->
+    <div class="fair-category">서울대학교 교원 창업 기업</div>
+    <div class="fair-logos-row">
+      <div class="fair-card">
+        <a href="https://www.mangoboost.io/" target="_blank" class="fair-card-logo">
+          <img src="images/fair_4.jpg" alt="망고부스트">
+        </a>
+        <p class="fair-card-name">망고부스트</p>
+        <p class="fair-card-rep">김장우 교수</p>
+        <p class="fair-card-dept">서울대 공과대학 전기 정보공학부</p>
+      </div>
+      <div class="fair-card">
+        <a href="https://www.bluerobin.co.kr/EN/index.php" target="_blank" class="fair-card-logo">
+          <img src="images/fair_5.jpg" alt="블루로빈">
+        </a>
+        <p class="fair-card-name">블루로빈</p>
+        <p class="fair-card-rep">박재흥 교수</p>
+        <p class="fair-card-dept">서울대 융합과학기술대학원</p>
+      </div>
+      <div class="fair-card">
+        <a href="https://moreh.io/" target="_blank" class="fair-card-logo">
+          <img src="images/fair_6.jpg" alt="모레">
+        </a>
+        <p class="fair-card-name">(주)모레</p>
+        <p class="fair-card-rep">이재진 원장</p>
+        <p class="fair-card-dept">서울대 대학미래이시안스컴퓨터공학전공</p>
+      </div>
+    </div>
+  </div>
+  <img src="images/multidot_spinner.png" class="fair-spinner" alt="">
+</section>
+
+<!-- ===== AI EVENT SECTION ===== -->
+<section class="event-section">
+  <video class="hero-bg" autoplay muted loop playsinline>
+    <source src="images/bottom_video.mp4" type="video/mp4">
+  </video>
+  <div class="section-inner">
+    <h2 class="section-title">AI 관련 행사</h2>
+
+    <div class="event-row">
+      <div class="event-card">
+        <div class="event-card-header">
+          <p class="event-card-title">참가자 특전</p>
+        </div>
+        <div class="event-card-content">
+          <p class="event-card-body">OpenAI 구독권 200개 제공<br>(오전/오후 참가자 추첨)</p>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="event-card-header">
+          <p class="event-card-title">문화와 함께하는 AI<span class="event-card-subtitle">(서울대학교 문화예술원)</span></p>
+        </div>
+        <div class="event-card-content">
+          <p class="event-card-body">&nbsp;</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-card-header">
+        <p class="event-card-title">2026 AI Native Campus Journey</p>
+      </div>
+      <div class="event-card-content event-card-content--split">
+        <div class="event-journey-col event-journey-col--left">
+          <p class="event-card-body event-card-body--auto">AI 활용 체험단 모집<br>(비교과시스템에서 신청)</p>
+          <span class="event-journey-divider"></span>
+        </div>
+        <div class="event-journey-col">
+          <p class="event-card-body event-card-body--auto">AI 기업초청 세미나<br>(매월)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="summit-footer">
+  <div class="footer-organizer">
+    <div><span class="label">주최 |&nbsp;&nbsp; </span> <strong>서울대학교</strong></div>
+    <div><span class="label">주관 |&nbsp;&nbsp; </span> <strong>서울대학교 정보화본부 · AI연구원</strong></div>
+  </div>
+  <div class="footer-logo">
+    <img src="images/logo_snu.png" alt="서울대학교">
+  </div>
+  <div class="footer-bottom">
+    <a href="#">약관 및 지원</a>
+    <a href="#">개인정보 처리방침</a>
+  </div>
+</footer>
+
+  </body>
+</html>
