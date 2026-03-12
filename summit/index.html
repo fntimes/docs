@@ -25,7 +25,6 @@
 
 
 
-
 <style>
   /* ===== Base ===== */
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -664,17 +663,6 @@
     width: auto;
     margin: 0 auto;
   }
-  .footer-bottom {
-    display: flex;
-    justify-content: flex-start;
-    gap: 24px;
-  }
-  .footer-bottom a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-  }
   /* ===== Tablet (≤1024px) ===== */
   @media (max-width: 1024px) {
     .top-nav { padding: 16px 24px; gap: 24px; }
@@ -737,14 +725,20 @@
   /* ===== Mobile (≤768px) ===== */
   @media (max-width: 768px) {
     .top-nav {
-      padding: 16px 20px;
+      padding: 60px 20px 16px;
       flex-direction: column;
       align-items: center;
       gap: 12px;
     }
     .top-nav-logo img { height: 56px; }
-    .top-nav-links { gap: 16px; flex-wrap: wrap; justify-content: center; border-bottom: none; padding-left: 0; padding-bottom: 0; }
-    .top-nav-links a { font-size: 14px; font-weight: 600; }
+    .top-nav-links { gap: 20px; flex-wrap: wrap; justify-content: center; border-bottom: none; padding-left: 0; padding-bottom: 0; }
+    .top-nav-links a { font-size: 18px; font-weight: 600; }
+    .nav-lang {
+      position: absolute;
+      top: 24px;
+      right: 40px;
+      font-size: 13px !important;
+    }
 
     .hero { height: auto; min-height: 100vh; padding: 24px 20px 80px; }
     .hero-title-img { width: 80vw; max-width: 400px; margin-bottom: 20px; }
@@ -752,7 +746,7 @@
     .hero-venue { font-size: 14px; margin-bottom: 32px; }
     .btn-register { font-size: 20px !important; padding: 6px 28px; }
     .btn-register svg { width: 10px; height: 16px; margin-left: 20px !important; }
-    .hero-organizer { position: absolute; bottom: 24px; font-size: 12px; gap: 8px; flex-direction: column; align-items: center; }
+    .hero-organizer { position: absolute; bottom: 24px; font-size: 18px; gap: 8px; flex-direction: column; align-items: center; }
     .hero-spinner { display: none; }
 
     .speakers-section { padding: 48px 20px; }
@@ -761,12 +755,15 @@
     .speakers-row { gap: 16px; justify-content: center; flex-wrap: wrap; }
     .speakers-row--keynote .speaker-photo { width: 80px; height: 80px; }
     .speakers-row--keynote .speaker-card { width: 100px; }
-    .speakers-row--main .speaker-photo { width: 70px; height: 70px; }
-    .speakers-row--main .speaker-card { width: 90px; }
+    .speakers-row--main { display: grid; grid-template-columns: repeat(3, 1fr); justify-items: center; }
+    .speakers-row--main .speaker-photo { width: 80px; height: 80px; }
+    .speakers-row--main .speaker-card { width: 100px; }
+    .speakers-row--main .speaker-name { font-size: 13px; font-weight: 700; }
+    .speakers-row--main .speaker-role { font-size: 11px; font-weight: 300; }
     .speaker-name { font-size: 13px; }
     .speaker-role { font-size: 11px; }
 
-    .program-section { padding: 32px 16px; }
+    .program-section { padding: 32px 16px; background-size: auto 300px; background-position: center top; }
     .program-section .section-title { font-size: 24px; margin-bottom: 24px; }
     .session-tab { font-size: 13px; padding: 10px 0; }
     .session-topic { font-size: 20px; padding: 8px 16px; border-radius: 8px; }
@@ -815,8 +812,6 @@
     .footer-organizer { flex-direction: column; gap: 8px; font-size: 16px; margin-bottom: 24px; }
     .footer-logo { margin-bottom: 24px; }
     .footer-logo img { height: 60px; }
-    .footer-bottom { gap: 16px; }
-    .footer-bottom a { font-size: 11px; }
   }
 </style>
 
@@ -828,7 +823,7 @@
   <div class="top-nav-links">
     <a href="#program">Program</a>
     <a href="#speakers">Speakers</a>
-    <a href="#register">Register</a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeDdf88E6FVmxizzzXLd0nsN5jRn3y7IA11lijKXpRyDnf4PA/viewform" target="_blank">Register</a>
     <a href="#fair" class="nav-highlight">AI Fair</a>
     <a href="#" class="nav-lang">ENGLISH <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </div>
@@ -848,7 +843,7 @@
     <p class="hero-date">2026. 4. 2.(목) 09:00~17:00</p>
     <p class="hero-venue">서울대학교 GECE(38동) 5층</p>
 
-    <a href="#register" class="btn-register">사전등록 <svg class="btn-register-chevron" width="16" height="26" viewBox="0 0 8 14" fill="none"><path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeDdf88E6FVmxizzzXLd0nsN5jRn3y7IA11lijKXpRyDnf4PA/viewform" target="_blank" class="btn-register">사전등록 <svg class="btn-register-chevron" width="16" height="26" viewBox="0 0 8 14" fill="none"><path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 
   </div>
 
@@ -1235,11 +1230,6 @@
   <div class="footer-logo">
     <img src="images/logo_snu.png" alt="서울대학교">
   </div>
-  <div class="footer-bottom">
-    <a href="#">약관 및 지원</a>
-    <a href="#">개인정보 처리방침</a>
-  </div>
 </footer>
-
   </body>
 </html>
