@@ -44,9 +44,9 @@ flowchart TB
     end
     subgraph extractor[compass-engine]
         direction TB
-        e1[DART API 연동]
-        e2[공시문서 파싱]
-        e3[배치 추출 작업]
+        e1[XBRL API / DART 연동]
+        e2[5개 업종 데이터 추출]
+        e3[모니터링 / 배치 작업]
     end
     DB --> compass
     DB --> extractor
@@ -60,11 +60,11 @@ flowchart TB
 
 | 쓰기 주체 | 테이블 | 비고 |
 |-----------|--------|------|
-| compass-engine | companies | DART API로 기업 정보 수집 |
-| compass-engine | performance_values | 공시문서에서 지표 추출 |
+| compass-engine | companies | DART API로 기업 정보 수집 (금융 42개사 + 일반 774개사) |
+| compass-engine | performance_values | XBRL API/DART/Factbook에서 5개 업종 지표 추출 |
 | compass-engine | retirement_pension_performances | FSS 데이터 수집 |
 | compass-engine | dcm_bond_programs, dcm_bond_issues, dcm_underwritings | DART 공시에서 채권 발행 정보 추출 |
-| compass-engine | ingestions | 자체 수집 이력 기록 |
+| compass-engine | ingestions | 자체 수집 이력 기록 (source 7종, sector 5종) |
 | compass | users, sessions | 인증 |
 | compass | articles | AI 기사 생성 |
 | compass | ai_token_allocations, ai_usage_logs | AI 사용 추적 |
@@ -187,6 +187,11 @@ erDiagram
 - `source_cell`, `source_sheet`: 원본 데이터 추적용
 
 **유니크 제약**: `(company_id, indicator_id, year, quarter, period_type, basis)`
+
+**metadata (JSONB) 활용**:
+- `source`: 추출 소스 추적 (`"dart"`, `"xbrl_api"`, `"calculated"` 등)
+- `components`: CAPEX fallback 등 합산 근거 기록 (배열)
+- `source_type`: 파생 지표의 계산 방식 표시
 
 ### 2.3 DCM Domain (채권시장)
 
@@ -323,8 +328,8 @@ erDiagram
 | ingestions | 수집 이력 | 소스(dart/factbook/fss/crefia), 상태, 결과 |
 
 **주요 컬럼**:
-- `source`: 데이터 출처 (dart, factbook, fss, crefia)
-- `sector`: 대상 업종 (holdings, banks, securities, cards)
+- `source`: 데이터 출처 (`dart`, `factbook`, `fss`, `crefia`, `xbrl_api`, `xbrl_txt`, `fsc_api`)
+- `sector`: 대상 업종 (`holdings`, `banks`, `securities`, `cards`, `general`)
 - `status`: 처리 상태 (success, partial, failed)
 - `saved_count`, `updated_count`: 처리 건수
 
@@ -660,8 +665,8 @@ end
 | company_id | BIGINT | 기업 FK (NULL 가능) |
 | year | INTEGER | 연도 |
 | quarter | INTEGER | 분기 |
-| source | VARCHAR | 데이터 출처 (dart/factbook/fss/crefia) |
-| sector | VARCHAR | 업종 (holdings/banks/securities/cards) |
+| source | VARCHAR | 데이터 출처 (dart/factbook/fss/crefia/xbrl_api/xbrl_txt/fsc_api) |
+| sector | VARCHAR | 업종 (holdings/banks/securities/cards/general) |
 | status | VARCHAR | 상태 (success/partial/failed) |
 | saved_count | INTEGER | 신규 저장 건수 |
 | updated_count | INTEGER | 업데이트 건수 |
@@ -997,52 +1002,45 @@ Performance::Value.where(indicator_id: 1, year: 2024)
 bin/rails db:seed
 ```
 
-15개 시드 파일이 의존성 순서대로 자동 실행된다.
+11개 시드 파일이 의존성 순서대로 자동 실행된다.
+
+> **참고**: `users`, `articles`, `companies_general`은 환경별 별도 관리 (db:seed 대상 아님)
 
 ### 8.2 시드 파일 의존성 순서
 
 ```
-1.  users                          ← 독립 (관리자 계정)
-2.  sectors                        ← 독립 (금융 업종 계층)
-3.  companies_holdings_banks       ← Sector 필요 (4대 지주 + 4대 은행)
-4.  performance_categories         ← 독립 (카테고리 생성)
-5.  companies_securities           ← Sector, Category 필요 (26개 증권사)
-6.  companies_cards                ← Sector 필요 (8개 카드사)
-7.  companies_general              ← Sector 필요 (일반 기업)
-8.  theme_sectors                  ← Company, Sector 필요 (테마 분류 연결)
-9.  company_relations              ← Company 필요 (지주-자회사 관계)
-10. performance_indicators         ← Category 필요 (금융 지표)
-11. performance_indicators_general ← Category 필요 (일반 지표)
-12. values_holdings_banks          ← Company, Indicator 필요 (~2025Q3)
-13. values_holdings_2025q4         ← Company, Indicator 필요 (2025Q4 잠정치)
-14. values_securities              ← Company, Indicator 필요
-15. values_cards                   ← Company, Indicator 필요
-16. articles                       ← User 필요 (목업 기사 3건)
+db:seed 자동 실행 (11개):
+1.  sectors                           ← 독립 (금융/일반 업종 계층)
+2.  companies_holdings_banks          ← Sector 필요 (4대 지주 + 4대 은행)
+3.  performance_categories            ← 독립 (카테고리 생성)
+4.  companies_securities              ← Sector 필요 (26개 증권사)
+5.  companies_cards                   ← Sector 필요 (8개 카드사)
+6.  theme_sectors                     ← Company, Sector 필요 (테마 분류 연결)
+7.  company_relations                 ← Company 필요 (지주-자회사 관계)
+8.  performance_indicators            ← Category 필요 (금융 공통 지표)
+9.  performance_indicators_securities ← Category 필요 (증권 전용 지표)
+10. performance_indicators_general    ← Category 필요 (일반업종 지표)
+11. values_all                        ← Company, Indicator 필요 (CSV 기반 전체 경영성과)
+
+환경별 별도 관리:
+- users                              ← 프로덕션 실 사용자 패스워드 보호
+- articles                           ← 프로덕션 고유 콘텐츠
+- companies_general                  ← 후보 기업군 미확정, 프로덕션 반영 보류
 ```
 
 ### 8.3 개별 시드 실행
 
 ```bash
 # 특정 시드만 실행 (의존 데이터가 이미 있어야 함)
-bin/rails db:seed:users
 bin/rails db:seed:sectors
 bin/rails db:seed:companies_holdings_banks
+bin/rails db:seed:companies_securities
+bin/rails db:seed:companies_cards
 bin/rails db:seed:performance_categories
 bin/rails db:seed:performance_indicators
-bin/rails db:seed:values_holdings_banks
-bin/rails db:seed:values_securities
-bin/rails db:seed:values_cards
-```
-
-### 8.4 기타 데이터 관리 Rake 태스크
-
-```bash
-# DART API에서 기업 상세 정보 수집
-bin/rails dart:fetch_sample        # 샘플 기업
-bin/rails dart:fetch_all           # 전체 기업
-
-# WICS 업종 분류 CSV 임포트
-bin/rails import:wics
+bin/rails db:seed:performance_indicators_securities
+bin/rails db:seed:performance_indicators_general
+bin/rails db:seed:values_all
 ```
 
 ---
@@ -1544,6 +1542,6 @@ ERD 상으로는 Company가 `performance_values`, `dcm_bond_programs`, `retireme
 
 ---
 
-**작성일**: 2026-02-26
-**버전**: 4.1
+**작성일**: 2026-03-30
+**버전**: 4.2 (일반업종 반영, ingestion enum/시드 현행화)
 **스키마 버전**: 2026_02_20_025743
